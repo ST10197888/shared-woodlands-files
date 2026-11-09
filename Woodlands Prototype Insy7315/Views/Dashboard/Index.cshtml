@@ -1,0 +1,324 @@
+@model Woodlands_Prototype_Insy7315.Models.DashboardOverviewViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["Subtitle"] = $"Welcome back, {Model.DisplayName}.";
+}
+@using Woodlands_Prototype_Insy7315.Models
+
+@functions {
+    string StatusBadgeClass(string status) => status switch
+    {
+        "Completed" => "bg-success/10 text-success",
+        "In Progress" => "bg-accent/10 text-accent",
+        "Cancelled" => "bg-danger/10 text-danger",
+        _ => "bg-brand-700/10 text-brand-700"
+    };
+}
+
+<!-- ====== ADMIN VIEW ====== -->
+@if (Model.IsAdmin)
+{
+    <!-- Stat cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl border border-line shadow-sm p-5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs uppercase tracking-wide text-muted font-medium">Total Quotes</span>
+                <svg class="w-4 h-4 text-brand-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+            </div>
+            <div class="text-3xl font-bold text-ink">@Model.TotalQuotes</div>
+            <div class="text-xs text-muted mt-1">@Model.TotalCustomers customers</div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-line shadow-sm p-5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs uppercase tracking-wide text-muted font-medium">Completed</span>
+                <svg class="w-4 h-4 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+            </div>
+            <div class="text-3xl font-bold text-ink">@Model.CompletedJobs</div>
+            <div class="text-xs text-muted mt-1">of @Model.TotalQuotes total</div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-line shadow-sm p-5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs uppercase tracking-wide text-muted font-medium">Completion Rate</span>
+                <svg class="w-4 h-4 text-brand-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-6M6 20V10M18 20V4" /></svg>
+            </div>
+            <div class="text-3xl font-bold text-ink">@Model.CompletionRate%</div>
+            <div class="w-full h-1.5 bg-surface rounded-full mt-2 overflow-hidden">
+                <div class="h-full bg-brand-700 rounded-full" style="width: @(Model.CompletionRate)%"></div>
+            </div>
+        </div>
+
+        <div class="bg-brand-700 rounded-xl shadow-sm p-5 text-white">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs uppercase tracking-wide text-white/70 font-medium">Completed Revenue</span>
+                <svg class="w-4 h-4 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                    <path d="M18 12a2 2 0 0 0 0 4h4v-4z" />
+                </svg>
+            </div>
+            <div class="text-3xl font-bold">@Model.MonthlyRevenue</div>
+            <div class="text-xs text-white/70 mt-1">All time</div>
+        </div>
+    </div>
+
+    <!-- Branch performance -->
+    <div class="mb-6">
+        <div class="flex items-end justify-between mb-3">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-muted">Branch Performance</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            @foreach (var b in Model.Branches)
+            {
+                <div class="bg-white rounded-xl border border-line shadow-sm p-5">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-semibold text-ink">@b.Name</span>
+                        <span class="text-xs text-muted">@b.Quotes quotes</span>
+                    </div>
+                    <div class="text-2xl font-bold text-brand-700 mb-3">@b.Revenue</div>
+                    <div class="flex items-center justify-between text-xs text-muted mb-1">
+                        <span>Done</span>
+                        <span>@b.DonePercent%</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-surface rounded-full overflow-hidden">
+                        <div class="h-full bg-brand-700 rounded-full" style="width: @(b.DonePercent)%"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Recent quotes -->
+    <div class="bg-white rounded-xl border border-line shadow-sm">
+        <div class="p-4 border-b border-line flex items-center justify-between">
+            <div>
+                <h2 class="font-semibold text-ink">Recent Quotes</h2>
+                <p class="text-xs text-muted mt-0.5">The 5 most recently submitted quote requests.</p>
+            </div>
+            <a asp-action="Index" class="text-xs font-medium text-brand-700 hover:text-accent">Refresh</a>
+        </div>
+
+        @if (!Model.RecentQuotes.Any())
+        {
+            <div class="py-12 text-center">
+                <svg class="w-10 h-10 mx-auto text-muted/40 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+                <p class="text-sm text-muted">No quotes yet.</p>
+            </div>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-surface text-muted text-xs uppercase tracking-wide">
+                        <tr>
+                            <th class="text-left font-medium px-4 py-3">Quote</th>
+                            <th class="text-left font-medium px-4 py-3">Customer</th>
+                            <th class="text-left font-medium px-4 py-3">Service</th>
+                            <th class="text-left font-medium px-4 py-3">Branch</th>
+                            <th class="text-left font-medium px-4 py-3">Date</th>
+                            <th class="text-left font-medium px-4 py-3">Value</th>
+                            <th class="text-left font-medium px-4 py-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-line">
+                        @foreach (var q in Model.RecentQuotes)
+                        {
+                            <tr class="hover:bg-surface/60">
+                                <td class="px-4 py-3 font-medium text-ink">@q.Id</td>
+                                <td class="px-4 py-3 text-ink/80">@q.Customer</td>
+                                <td class="px-4 py-3 text-ink/70 text-xs">@q.Service</td>
+                                <td class="px-4 py-3 text-ink/70 text-xs">@q.Branch</td>
+                                <td class="px-4 py-3 text-muted text-xs">@q.Date</td>
+                                <td class="px-4 py-3 text-ink font-medium">@(string.IsNullOrEmpty(q.Value) ? "—" : q.Value)</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-block px-2 py-0.5 rounded-full text-[0.7rem] font-semibold @StatusBadgeClass(q.Status)">@q.Status</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
+
+<!-- ====== MANAGER VIEW ====== -->
+@if (Model.IsManager)
+{
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl border border-line shadow-sm p-5">
+            <div class="text-xs uppercase tracking-wide text-muted font-medium mb-2">Pending</div>
+            <div class="text-3xl font-bold text-ink">@Model.PendingCount</div>
+            <div class="text-xs text-muted mt-1">@Model.ManagerBranch branch</div>
+        </div>
+        <div class="bg-white rounded-xl border border-line shadow-sm p-5">
+            <div class="text-xs uppercase tracking-wide text-muted font-medium mb-2">In Progress</div>
+            <div class="text-3xl font-bold text-accent">@Model.InProgressCount</div>
+        </div>
+        <div class="bg-white rounded-xl border border-line shadow-sm p-5">
+            <div class="text-xs uppercase tracking-wide text-muted font-medium mb-2">Completed</div>
+            <div class="text-3xl font-bold text-success">@Model.CompletedCount</div>
+        </div>
+        <div class="bg-brand-700 rounded-xl shadow-sm p-5 text-white">
+            <div class="text-xs uppercase tracking-wide text-white/70 font-medium mb-2">Revenue</div>
+            <div class="text-3xl font-bold">@Model.WeekRevenue</div>
+            <div class="text-xs text-white/70 mt-1">Completed</div>
+        </div>
+    </div>
+
+    <!-- Weekly revenue chart -->
+    <div class="bg-white rounded-xl border border-line shadow-sm p-5 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h2 class="font-semibold text-ink">This Week's Revenue</h2>
+                <p class="text-xs text-muted mt-0.5">Mon &mdash; Sat</p>
+            </div>
+        </div>
+        @{
+            var max = Model.WeeklyRevenueDays.Count > 0 ? Model.WeeklyRevenueDays.Max() : 1;
+            if (max == 0) max = 1;
+            var days = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+        }
+        <div class="flex items-end justify-between gap-3 h-40">
+            @for (int i = 0; i < Model.WeeklyRevenueDays.Count && i < 6; i++)
+            {
+                var val = Model.WeeklyRevenueDays[i];
+                var heightPct = (int)((double)val / max * 100);
+                <div class="flex-1 flex flex-col items-center gap-2">
+                    <div class="text-xs text-muted font-medium">R@(val.ToString("N0"))</div>
+                    <div class="w-full bg-surface rounded-lg flex items-end overflow-hidden" style="height: 100px;">
+                        <div class="w-full bg-brand-700 rounded-lg transition-all" style="height: @(heightPct < 3 ? 3 : heightPct)%;"></div>
+                    </div>
+                    <div class="text-xs text-muted">@days[i]</div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Quotes needing attention -->
+    <div class="bg-white rounded-xl border border-line shadow-sm">
+        <div class="p-4 border-b border-line">
+            <h2 class="font-semibold text-ink">Quotes Needing Attention</h2>
+            <p class="text-xs text-muted mt-0.5">Pending or in-progress requests for your branch.</p>
+        </div>
+
+        @if (!Model.QuotesNeedingAttention.Any())
+        {
+            <div class="py-12 text-center">
+                <svg class="w-10 h-10 mx-auto text-muted/40 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                <p class="text-sm text-muted">All caught up. No quotes need attention.</p>
+            </div>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-surface text-muted text-xs uppercase tracking-wide">
+                        <tr>
+                            <th class="text-left font-medium px-4 py-3">Quote</th>
+                            <th class="text-left font-medium px-4 py-3">Customer</th>
+                            <th class="text-left font-medium px-4 py-3">Service</th>
+                            <th class="text-left font-medium px-4 py-3">Date</th>
+                            <th class="text-left font-medium px-4 py-3">Value</th>
+                            <th class="text-left font-medium px-4 py-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-line">
+                        @foreach (var q in Model.QuotesNeedingAttention)
+                        {
+                            <tr class="hover:bg-surface/60">
+                                <td class="px-4 py-3 font-medium text-ink">@q.Id</td>
+                                <td class="px-4 py-3 text-ink/80">@q.Customer</td>
+                                <td class="px-4 py-3 text-ink/70 text-xs">@q.Service</td>
+                                <td class="px-4 py-3 text-muted text-xs">@q.Date</td>
+                                <td class="px-4 py-3 text-ink font-medium">@(string.IsNullOrEmpty(q.Value) ? "—" : q.Value)</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-block px-2 py-0.5 rounded-full text-[0.7rem] font-semibold @StatusBadgeClass(q.Status)">@q.Status</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
+
+<!-- ====== CUSTOMER VIEW ====== -->
+@if (!Model.IsAdmin && !Model.IsManager)
+{
+    <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-xl border border-line shadow-sm p-5">
+            <div class="text-xs uppercase tracking-wide text-muted font-medium mb-2">Pending</div>
+            <div class="text-3xl font-bold text-ink">@Model.PendingCount</div>
+        </div>
+        <div class="bg-white rounded-xl border border-line shadow-sm p-5">
+            <div class="text-xs uppercase tracking-wide text-muted font-medium mb-2">In Progress</div>
+            <div class="text-3xl font-bold text-accent">@Model.InProgressCount</div>
+        </div>
+        <div class="bg-white rounded-xl border border-line shadow-sm p-5">
+            <div class="text-xs uppercase tracking-wide text-muted font-medium mb-2">Completed</div>
+            <div class="text-3xl font-bold text-success">@Model.CompletedCount</div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-line shadow-sm">
+        <div class="p-4 border-b border-line flex items-center justify-between">
+            <div>
+                <h2 class="font-semibold text-ink">Your Quotes</h2>
+                <p class="text-xs text-muted mt-0.5">All quote requests you've submitted.</p>
+            </div>
+            <a asp-controller="Contact" asp-action="Index" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-700 text-white text-xs font-semibold hover:bg-brand-800">
+                + New quote
+            </a>
+        </div>
+
+        @if (!Model.RecentQuotes.Any())
+        {
+            <div class="py-16 text-center">
+                <svg class="w-12 h-12 mx-auto text-muted/40 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+                <h3 class="text-base font-semibold text-ink">No quotes yet</h3>
+                <p class="text-sm text-muted mt-1">Request your first quote and it will appear here.</p>
+                <a asp-controller="Contact" asp-action="Index" class="inline-flex items-center gap-2 mt-5 px-4 py-2 rounded-lg bg-brand-700 text-white text-sm font-semibold hover:bg-brand-800">
+                    Request a quote
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-surface text-muted text-xs uppercase tracking-wide">
+                        <tr>
+                            <th class="text-left font-medium px-4 py-3">Quote</th>
+                            <th class="text-left font-medium px-4 py-3">Service</th>
+                            <th class="text-left font-medium px-4 py-3">Branch</th>
+                            <th class="text-left font-medium px-4 py-3">Date</th>
+                            <th class="text-left font-medium px-4 py-3">Value</th>
+                            <th class="text-left font-medium px-4 py-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-line">
+                        @foreach (var q in Model.RecentQuotes)
+                        {
+                            <tr class="hover:bg-surface/60">
+                                <td class="px-4 py-3 font-medium text-ink">@q.Id</td>
+                                <td class="px-4 py-3 text-ink/70 text-xs">@q.Service</td>
+                                <td class="px-4 py-3 text-ink/70 text-xs">@q.Branch</td>
+                                <td class="px-4 py-3 text-muted text-xs">@q.Date</td>
+                                <td class="px-4 py-3 text-ink font-medium">@(string.IsNullOrEmpty(q.Value) ? "—" : q.Value)</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-block px-2 py-0.5 rounded-full text-[0.7rem] font-semibold @StatusBadgeClass(q.Status)">@q.Status</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
+<script>
+     setTimeout(function () { window.location.reload(); }, 30000);
+</script>

@@ -1,0 +1,475 @@
+@model Woodlands_Prototype_Insy7315.Models.ProductFormViewModel
+@{
+
+    var editing = !string.IsNullOrWhiteSpace(Model.Id);
+    ViewData["Title"] = editing ? "Edit Product" : "Add Product";
+
+    var categories = new[] { "Kitchen Units", "TV Stands", "Built-In Cupboards", "Cutting & Edging" };
+
+    var presetTags = new[] { "Popular", "New", "Sale", "Limited" };
+    var currentTag = Model.Tag ?? "";
+    var isPresetTag = string.IsNullOrEmpty(currentTag) || presetTags.Contains(currentTag);
+
+    var galleryUrls = (Model.Gallery ?? "")
+        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Take(5)
+        .ToList();
+
+    var featureList = (Model.Features ?? "")
+        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .ToList();
+
+    var finishList = (Model.Finishes ?? "")
+        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .ToList();
+}
+
+<div class="max-w-4xl mx-auto px-4 py-10">
+
+    <h1 class="text-3xl font-bold text-brand-700 mb-1" style="font-family:var(--font-display);">@ViewData["Title"]</h1>
+    <p class="text-sm text-gray-500 mb-6">Fill in the details below the same way a customer will see them on the product page.</p>
+
+@*     <div asp-validation-summary="All" class="text-sm text-red-600 mb-4"></div> *@
+
+    <form asp-action="@(editing ? "EditProduct" : "CreateProduct")" asp-route-id="@Model.Id" method="post" class="bg-white border border-gray-100 rounded-xl shadow-sm p-6 space-y-8" id="product-form" novalidate="novalidate">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" 
+               novalidate />
+        <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+        <!-- Live "what am I creating" summary -->
+        <div class="flex items-center gap-3 rounded-lg border border-brand-700/15 bg-brand-700/5 px-4 py-3">
+            <span class="shrink-0 text-xs font-semibold uppercase tracking-wide text-brand-700/70">@(editing ? "Editing" : "Creating")</span>
+            <p class="text-sm font-medium text-brand-700 truncate">
+                <span id="summary-title">@(string.IsNullOrWhiteSpace(Model.Title) ? "Untitled product" : Model.Title)</span>
+                <span class="text-brand-700/50">&middot;</span>
+                <span id="summary-category">@(string.IsNullOrWhiteSpace(Model.Category) ? "No category selected" : Model.Category)</span>
+            </p>
+        </div>
+
+        <!-- ============ BASICS ============ -->
+        <div class="space-y-5">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400 display-2">Basics</h2>
+
+            <div class="grid md:grid-cols-2 gap-5">
+                <div>
+                    <label asp-for="Title" class="field-label"></label>
+                    <input asp-for="Title" id="Title" class="field" placeholder="e.g. Modern Kitchen Suite" oninput="syncSummary()" />
+                    <p class="text-xs text-gray-400 mt-1">The product name shown on cards and the product page heading.</p>
+                    <span asp-validation-for="Title" class="text-xs text-red-600"></span>
+                </div>
+
+                <div>
+                    <label class="field-label">Category</label>
+                    <div class="flex flex-wrap gap-2" id="category-picker">
+                        @foreach (var cat in categories)
+                        {
+                            var inputId = "cat-" + cat.Replace(" ", "-").Replace("&", "and");
+                            <input type="radio" asp-for="Category" value="@cat" id="@inputId" class="hidden category-radio" onchange="syncSummary()" />
+                            <label for="@inputId" class="cursor-pointer px-4 py-2 rounded-full text-sm font-medium border transition-all category-label @(Model.Category == cat ? "bg-brand-700 text-white border-brand-700 shadow" : "bg-white text-brand-700 border-line hover:border-brand-700/50")" data-value="@cat">
+                                @cat
+                            </label>
+                        }
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">Controls which page and filter tab this product appears under.</p>
+                    <span asp-validation-for="Category" class="text-xs text-red-600"></span>
+                </div>
+            </div>
+
+            <div>
+                <label asp-for="Tagline" class="field-label"></label>
+                <input asp-for="Tagline" class="field" placeholder="e.g. Sleek lines. Enduring quality." />
+                <p class="text-xs text-gray-400 mt-1">One short line shown under the title on the product card and detail page.</p>
+            </div>
+
+            <div>
+                <label asp-for="Description" class="field-label"></label>
+                <textarea asp-for="Description" rows="5" class="field" placeholder="A few sentences describing the product, materials and what makes it stand out."></textarea>
+                <p class="text-xs text-gray-400 mt-1">The full write-up shown on the product detail page, above the key features.</p>
+            </div>
+        </div>
+
+        <!-- ============ IMAGES ============ -->
+        <div class="space-y-3">
+            <div class="flex items-baseline justify-between">
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400 display-2">Images</h2>
+                <span class="text-xs text-gray-400" id="image-count">0 / 5 added</span>
+            </div>
+            <p class="text-xs text-gray-400 -mt-2">Paste a link for each photo, or pick one straight from your device. The first image is the main photo used on cards and category pages; the rest appear as the thumbnail gallery on the product page. 5 max for now.</p>
+
+            <div id="image-slots" class="grid sm:grid-cols-3 gap-4"></div>
+
+            <button type="button" id="add-image-btn" onclick="addImageSlot()" class="text-sm font-semibold text-brand-700 hover:text-accent disabled:opacity-40 disabled:cursor-not-allowed">
+                + Add image
+            </button>
+
+            <!-- Hidden fields kept in sync by JS; controller logic is unchanged -->
+            <input type="hidden" asp-for="Image" id="Image" />
+            <textarea asp-for="Gallery" id="Gallery" class="hidden"></textarea>
+        </div>
+
+        <!-- ============ DETAILS ============ -->
+        <div class="space-y-5">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400 display-2">Details</h2>
+
+            <div class="grid md:grid-cols-3 gap-5">
+                <div>
+                    <label asp-for="LeadTime" class="field-label"></label>
+                    <input asp-for="LeadTime" class="field" placeholder="e.g. 2–4 weeks" />
+                    <p class="text-xs text-gray-400 mt-1">Estimated turnaround shown to customers.</p>
+                </div>
+
+                <div>
+                    <label class="field-label">Tag</label>
+                    <div class="flex flex-wrap gap-2" id="tag-picker">
+                        <input type="radio" name="TagPreset" value="" id="tag-none" class="hidden tag-radio" @(string.IsNullOrEmpty(currentTag) ? "checked" : "") onchange="syncTag()" />
+                        <label for="tag-none" class="cursor-pointer px-3 py-1.5 rounded-full text-xs font-medium border tag-label @(string.IsNullOrEmpty(currentTag) ? "bg-brand-700 text-white border-brand-700" : "bg-white text-brand-700 border-line hover:border-brand-700/50")" data-value="">None</label>
+
+                        @foreach (var t in presetTags)
+                        {
+                            var tid = "tag-" + t.ToLowerInvariant();
+                            <input type="radio" name="TagPreset" value="@t" id="@tid" class="hidden tag-radio" @(currentTag == t ? "checked" : "") onchange="syncTag()" />
+                            <label for="@tid" class="cursor-pointer px-3 py-1.5 rounded-full text-xs font-medium border tag-label @(currentTag == t ? "bg-brand-700 text-white border-brand-700" : "bg-white text-brand-700 border-line hover:border-brand-700/50")" data-value="@t">@t</label>
+                        }
+
+                        <input type="radio" name="TagPreset" value="custom" id="tag-custom" class="hidden tag-radio" @(!isPresetTag ? "checked" : "") onchange="syncTag()" />
+                        <label for="tag-custom" class="cursor-pointer px-3 py-1.5 rounded-full text-xs font-medium border tag-label @(!isPresetTag ? "bg-brand-700 text-white border-brand-700" : "bg-white text-brand-700 border-line hover:border-brand-700/50")" data-value="custom">Custom&hellip;</label>
+                    </div>
+                    <input type="text" id="tag-custom-input" value="@(!isPresetTag ? currentTag : "")" placeholder="Type a custom badge" oninput="syncTag()"
+                           class="@(!isPresetTag ? "" : "hidden") mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" />
+                    <input type="hidden" asp-for="Tag" id="Tag" />
+                    <p class="text-xs text-gray-400 mt-1">Small badge shown in the corner of the product card. Leave on "None" to show no badge.</p>
+                </div>
+
+                <div>
+                    <label asp-for="Price" class="field-label"></label>
+                    <div class="flex gap-2">
+                        <button type="button" id="from-toggle" onclick="toggleFrom()"
+                                class="shrink-0 px-3 py-2.5 rounded-lg border text-sm font-semibold transition-all @(Model.IsFromPrice ? "bg-brand-700 text-white border-brand-700" : "bg-white text-brand-700 border-line hover:border-brand-700/50")"
+                                title="Toggle whether this is a starting price">
+                            From
+                        </button>
+                        <input asp-for="Price" id="Price" class="flex-1 rounded-lg border border-gray-200 px-3 py-2.5" placeholder="e.g. R8,500" oninput="syncPricePreview()" />
+                    </div>
+                    <input type="hidden" asp-for="IsFromPrice" id="IsFromPrice" value="@(Model.IsFromPrice ? "true" : "false")" />
+                    <p class="text-xs text-gray-400 mt-1">Just the number/word here — no need to type "From" yourself. Click the <strong>From</strong> button to mark it as a starting price.</p>
+                    <p class="text-xs font-medium text-brand-700 mt-1">Preview: <span id="price-preview">&mdash;</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ FEATURES ============ -->
+        <div class="space-y-2">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400 display-2">Key Features</h2>
+            <p class="text-xs text-gray-400 -mt-1">Short bullet points shown on the product page (e.g. "Soft-close hinges"). Type one and press Enter or click Add.</p>
+            <div class="flex flex-wrap gap-2" id="features-chips"></div>
+            <div class="flex gap-2 mt-1">
+                <input type="text" id="features-input" placeholder="e.g. Soft-close hinges & drawers" class="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm" onkeydown="return chipKeydown(event, 'features')" />
+                <button type="button" onclick="addChip('features')" class="px-4 py-2 rounded-lg border border-line text-brand-700 text-sm font-semibold hover:border-brand-700/50">Add</button>
+            </div>
+            <textarea asp-for="Features" id="Features" class="hidden"></textarea>
+        </div>
+
+        <!-- ============ FINISHES ============ -->
+        <div class="space-y-2">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400 display-2">Available Finishes</h2>
+            <p class="text-xs text-gray-400 -mt-1">Colour or material options customers can choose from (e.g. "Arctic White", "Supawood"). Type one and press Enter or click Add.</p>
+            <div class="flex flex-wrap gap-2" id="finishes-chips"></div>
+            <div class="flex gap-2 mt-1">
+                <input type="text" id="finishes-input" placeholder="e.g. Arctic White" class="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm" onkeydown="return chipKeydown(event, 'finishes')" />
+                <button type="button" onclick="addChip('finishes')" class="px-4 py-2 rounded-lg border border-line text-brand-700 text-sm font-semibold hover:border-brand-700/50">Add</button>
+            </div>
+            <textarea asp-for="Finishes" id="Finishes" class="hidden"></textarea>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+            <button type="submit" class="btn btn-secondary">Save Product</button>
+            <a asp-action="Products" class="px-5 py-2.5 rounded-lg border border-gray-200 font-semibold">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+
+                    document.addEventListener('DOMContentLoaded', function () {
+            // Clear the "required" attribute from the hidden fields so partial saves work
+            document.querySelectorAll('input[type="hidden"]').forEach(function (input) {
+                input.removeAttribute('required');
+            });
+
+            // If the server rendered a validation summary with content, scroll to it
+            var summary = document.querySelector('.alert-danger');
+            if (summary && summary.textContent.trim().length > 0) {
+                summary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+
+        var MAX_IMAGES = 5;
+        var initialGallery = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(galleryUrls));
+        var initialFeatures = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(featureList));
+        var initialFinishes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(finishList));
+
+        // ---------- Category pills ----------
+        document.querySelectorAll('.category-label').forEach(function (label) {
+            label.addEventListener('click', function () {
+                document.querySelectorAll('.category-label').forEach(function (l) {
+                    l.classList.remove('bg-brand-700', 'text-white', 'border-brand-700', 'shadow');
+                    l.classList.add('bg-white', 'text-brand-700', 'border-line');
+                });
+                label.classList.remove('bg-white', 'text-brand-700', 'border-line');
+                label.classList.add('bg-brand-700', 'text-white', 'border-brand-700', 'shadow');
+            });
+        });
+
+        function syncSummary() {
+            var title = document.getElementById('Title').value.trim();
+            document.getElementById('summary-title').textContent = title === '' ? 'Untitled product' : title;
+
+            var checked = document.querySelector('.category-radio:checked');
+            document.getElementById('summary-category').textContent = checked ? checked.value : 'No category selected';
+        }
+
+        // Price "From" toggle 
+                function toggleFrom() {
+            var hidden = document.getElementById('IsFromPrice');
+            var isOn = hidden.value === 'true';
+            setFromState(!isOn);
+        }
+
+        function setFromState(isOn) {
+            var hidden = document.getElementById('IsFromPrice');
+            hidden.value = isOn ? 'true' : 'false'; 
+
+            var btn = document.getElementById('from-toggle');
+            if (isOn) {
+                btn.classList.add('bg-brand-700', 'text-white', 'border-brand-700');
+                btn.classList.remove('bg-white', 'text-brand-700', 'border-line');
+            } else {
+                btn.classList.remove('bg-brand-700', 'text-white', 'border-brand-700');
+                btn.classList.add('bg-white', 'text-brand-700', 'border-line');
+            }
+
+            syncPricePreview();
+        }
+
+        function syncPricePreview() {
+            var priceInput = document.getElementById('Price');
+            var hidden = document.getElementById('IsFromPrice');
+            if (!priceInput || !hidden) return;
+
+            var price = priceInput.value.trim();
+            var isOn = hidden.value === 'true';
+            var preview = document.getElementById('price-preview');
+            if (!preview) return;
+
+            if (!price) {
+                preview.textContent = '—';
+            } else {
+                preview.textContent = isOn ? 'From ' + price : price;
+            }
+        }
+
+        // ---------- Tag picker ----------
+        function syncTag() {
+            var checked = document.querySelector('.tag-radio:checked');
+            var customInput = document.getElementById('tag-custom-input');
+            var value = checked ? checked.value : '';
+
+            document.querySelectorAll('.tag-label').forEach(function (label) {
+                var isActive = checked && label.getAttribute('data-value') === checked.value;
+                label.classList.toggle('bg-brand-700', isActive);
+                label.classList.toggle('text-white', isActive);
+                label.classList.toggle('border-brand-700', isActive);
+                label.classList.toggle('bg-white', !isActive);
+                label.classList.toggle('text-brand-700', !isActive);
+                label.classList.toggle('border-line', !isActive);
+            });
+
+            if (value === 'custom') {
+                customInput.classList.remove('hidden');
+                document.getElementById('Tag').value = customInput.value.trim();
+            } else {
+                customInput.classList.add('hidden');
+                document.getElementById('Tag').value = value;
+            }
+        }
+
+        // ---------- Image slots (max 5) ----------
+        var imageSlotsEl = document.getElementById('image-slots');
+        var slotCount = 0;
+
+        function addImageSlot(url) {
+            if (slotCount >= MAX_IMAGES) return;
+            slotCount++;
+
+            var isMain = slotCount === 1;
+            var slotId = 'img-slot-' + slotCount + '-' + Math.random().toString(36).slice(2, 7);
+            var wrap = document.createElement('div');
+            wrap.className = 'image-slot border border-dashed border-gray-300 rounded-lg p-2 space-y-2';
+            wrap.innerHTML =
+                '<div class="relative aspect-square w-full rounded-md bg-gray-50 overflow-hidden flex items-center justify-center">' +
+                    '<img class="preview hidden w-full h-full object-cover" />' +
+                    '<span class="placeholder text-xs text-gray-400 px-2 text-center">' + (isMain ? 'Main image' : 'Photo') + '</span>' +
+                    (isMain ? '<span class="absolute top-1 left-1 bg-brand-700 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">Main</span>' : '') +
+                '</div>' +
+                '<input type="text" class="image-url w-full rounded border border-gray-200 px-2 py-1.5 text-xs" placeholder="Paste image URL" />' +
+                '<div class="flex items-center gap-1">' +
+                    '<label for="' + slotId + '" class="file-btn flex-1 text-center cursor-pointer rounded border border-gray-200 px-2 py-1.5 text-xs text-gray-500 hover:border-brand-700/50 hover:text-brand-700 truncate">Choose from device&hellip;</label>' +
+                    '<input type="file" accept="image/*" id="' + slotId + '" class="image-file hidden" />' +
+                    '<button type="button" class="remove-slot text-xs text-gray-400 hover:text-accent px-1" title="Remove">&times;</button>' +
+                '</div>';
+
+            imageSlotsEl.appendChild(wrap);
+
+            var input = wrap.querySelector('.image-url');
+            var fileInput = wrap.querySelector('.image-file');
+            var fileLabel = wrap.querySelector('.file-btn');
+            var img = wrap.querySelector('.preview');
+            var placeholder = wrap.querySelector('.placeholder');
+
+            function showPreview(src) {
+                img.src = src;
+                img.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            }
+
+            function clearPreview() {
+                img.classList.add('hidden');
+                img.removeAttribute('src');
+                placeholder.classList.remove('hidden');
+            }
+
+            // Typing/pasting a URL always wins and clears any picked file.
+            function updateFromUrl() {
+                var val = input.value.trim();
+                fileInput.value = '';
+                fileLabel.textContent = 'Choose from device\u2026';
+                if (val) {
+                    showPreview(val);
+                } else {
+                    clearPreview();
+                }
+                syncImages();
+            }
+
+            // Picking a file reads it locally and stores it as a data URL in the
+            // same hidden field the URL input uses, since there's no upload
+            // endpoint yet. Swap this for a real upload call (posting fileInput.files[0]
+            // and using the returned URL) once the backend supports it.
+                    function updateFromFile() {
+            var file = fileInput.files && fileInput.files[0];
+            if (!file) return;
+
+            // File uploads aren't wired up yet — pasting a URL for now
+            alert('Direct file uploads are coming soon. For now, please paste an image URL (e.g., from Supabase Storage or any hosted image).');
+            fileInput.value = '';
+            fileLabel.textContent = 'Choose from device…';
+        }
+
+            input.addEventListener('input', updateFromUrl);
+            fileInput.addEventListener('change', updateFromFile);
+            img.addEventListener('error', function () {
+                img.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                placeholder.textContent = 'Couldn\'t load that image';
+            });
+
+            wrap.querySelector('.remove-slot').addEventListener('click', function () {
+                wrap.remove();
+                slotCount--;
+                renumberSlots();
+                syncImages();
+            });
+
+            if (url) {
+                input.value = url;
+                updateFromUrl();
+            }
+
+            syncImages();
+        }
+
+        function renumberSlots() {
+            var slots = imageSlotsEl.querySelectorAll('.image-slot');
+            slots.forEach(function (slot, i) {
+                var badge = slot.querySelector('.absolute');
+                var placeholder = slot.querySelector('.placeholder');
+                if (i === 0) {
+                    placeholder.textContent = placeholder.classList.contains('hidden') ? placeholder.textContent : 'Main image';
+                    if (!badge) {
+                        var span = document.createElement('span');
+                        span.className = 'absolute top-1 left-1 bg-brand-700 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded';
+                        span.textContent = 'Main';
+                        slot.querySelector('.relative').appendChild(span);
+                    }
+                } else if (badge) {
+                    badge.remove();
+                }
+            });
+        }
+
+        function syncImages() {
+            var urls = Array.from(imageSlotsEl.querySelectorAll('.image-url'))
+                .map(function (i) { return i.value.trim(); })
+                .filter(function (v) { return v !== ''; });
+
+            document.getElementById('Gallery').value = urls.join('\n');
+            document.getElementById('Image').value = urls.length ? urls[0] : '';
+            document.getElementById('image-count').textContent = urls.length + ' / ' + MAX_IMAGES + ' added';
+            document.getElementById('add-image-btn').disabled = slotCount >= MAX_IMAGES;
+        }
+
+        // ---------- Chip builders (Features / Finishes) ----------
+        function addChip(field) {
+            var input = document.getElementById(field + '-input');
+            var value = input.value.trim();
+            if (!value) return;
+
+            var chipsEl = document.getElementById(field + '-chips');
+            var chip = document.createElement('span');
+            chip.className = 'inline-flex items-center gap-1.5 bg-brand-700/5 text-brand-700 border border-brand-700/15 rounded-full pl-3 pr-2 py-1 text-sm';
+            chip.innerHTML = '<span class="chip-text"></span><button type="button" class="text-brand-700/50 hover:text-accent font-bold leading-none" title="Remove">&times;</button>';
+            chip.querySelector('.chip-text').textContent = value;
+            chip.querySelector('button').addEventListener('click', function () {
+                chip.remove();
+                syncChips(field);
+            });
+            chipsEl.appendChild(chip);
+
+            input.value = '';
+            input.focus();
+            syncChips(field);
+        }
+
+        function chipKeydown(event, field) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addChip(field);
+                return false;
+            }
+            return true;
+        }
+
+        function syncChips(field) {
+            var texts = Array.from(document.querySelectorAll('#' + field + '-chips .chip-text'))
+                .map(function (el) { return el.textContent; });
+            document.getElementById(field.charAt(0).toUpperCase() + field.slice(1)).value = texts.join('\n');
+        }
+
+        // ---------- Init from model (edit mode) ----------
+        (initialGallery.length ? initialGallery : ['']).forEach(function (url) { addImageSlot(url); });
+        initialFeatures.forEach(function (f) { seedChip('features', f); });
+        initialFinishes.forEach(function (f) { seedChip('finishes', f); });
+
+        function seedChip(field, value) {
+            var input = document.getElementById(field + '-input');
+            input.value = value;
+            addChip(field);
+        }
+
+        syncSummary();
+        syncTag();
+        syncPricePreview();
+    </script>
+}

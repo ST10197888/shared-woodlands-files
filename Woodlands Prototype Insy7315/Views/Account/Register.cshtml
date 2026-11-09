@@ -1,0 +1,57 @@
+@model Woodlands_Prototype_Insy7315.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="max-w-md mx-auto px-4 py-16">
+    <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-8">
+        <h1 class="text-2xl font-bold text-brand-700 mb-2" style="font-family:var(--font-display);">Create an account</h1>
+        <p class="text-sm text-gray-500 mb-6">New registrations are created as Customer accounts.</p>
+
+        <div asp-validation-summary="ModelOnly" class="text-sm text-red-600 mb-4"></div>
+
+        <form asp-action="Register" method="post" class="space-y-4">
+            @Html.AntiForgeryToken()
+
+            <div>
+                <label asp-for="FullName" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                <input asp-for="FullName" class="field" />
+                <span asp-validation-for="FullName" class="text-xs text-red-600"></span>
+            </div>
+
+            <div>
+                <label asp-for="Email" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                <input asp-for="Email" class="field" />
+                <span asp-validation-for="Email" class="text-xs text-red-600"></span>
+            </div>
+
+            <div>
+                <label asp-for="PhoneNumber" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                <input asp-for="PhoneNumber" class="field" />
+                <span asp-validation-for="PhoneNumber" class="text-xs text-red-600"></span>
+            </div>
+
+            <div>
+                <label asp-for="Password" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                <input asp-for="Password" class="field" />
+                <span asp-validation-for="Password" class="text-xs text-red-600"></span>
+            </div>
+
+            <div>
+                <label asp-for="ConfirmPassword" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                <input asp-for="ConfirmPassword" class="field" />
+                <span asp-validation-for="ConfirmPassword" class="text-xs text-red-600"></span>
+            </div>
+
+            <div>
+                <label class="flex items-start gap-2 text-sm text-gray-700">
+                    <input asp-for="PrivacyAcknowledged" class="mt-1 accent-brand-700" />
+                    <span>I have read the <a asp-controller="Home" asp-action="Privacy" class="underline text-brand-700">privacy notice</a> and understand my details are used to provide this account.</span>
+                </label>
+                <span asp-validation-for="PrivacyAcknowledged" class="text-xs text-red-600"></span>
+            </div>
+
+            <button type="submit" class="btn btn-secondary w-full">Create Customer Account</button>
+        </form>
+    </div>
+</div>

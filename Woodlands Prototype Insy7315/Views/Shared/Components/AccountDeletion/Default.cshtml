@@ -1,0 +1,64 @@
+@model Woodlands_Prototype_Insy7315.ViewComponents.AccountDeletionViewModel
+
+<div class="bg-white rounded-xl border border-danger/30 shadow-sm p-6 lg:p-8">
+    <h2 class="font-display text-xl text-danger">Delete my account</h2>
+
+    @if (Model.IsAdmin)
+    {
+        <p class="text-sm text-muted mt-2">
+            Administrator accounts can't be deleted from here. Ask another administrator to remove this account under Users.
+        </p>
+    }
+    else if (Model.Pending != null)
+    {
+        <div class="mt-3 rounded-lg border border-accent/30 bg-accent/5 px-4 py-3 text-sm text-ink">
+            Your deletion request was sent on @Model.Pending.CreatedAt.ToString("dd MMM yyyy") and is waiting for administrator approval. Your account stays active until then.
+        </div>
+
+        <form asp-controller="AccountDeletion" asp-action="CancelRequest" method="post" class="mt-4">
+            <input type="hidden" name="id" value="@Model.Pending.Id" />
+            <button type="submit" class="px-5 py-2.5 rounded-lg border border-line text-ink font-semibold hover:bg-surface">
+                Cancel request
+            </button>
+        </form>
+    }
+    else
+    {
+        <p class="text-sm text-muted mt-2">
+            Deleting your account needs administrator approval. Once approved, your account and every quote request submitted with your email address are permanently removed. You can register again with the same email afterwards.
+        </p>
+
+        <p class="text-sm mt-3 text-ink">
+            @if (Model.KeepData)
+            {
+                <span>Recovery is <strong>on</strong>: a copy of your data will be kept so you can restore it later.</span>
+            }
+            else
+            {
+                <span>Recovery is <strong>off</strong>: your data will not be kept.</span>
+            }
+            <a asp-controller="MyAccount" asp-action="Settings" class="underline text-brand-700">Change in Settings</a>
+        </p>
+
+        <form asp-controller="AccountDeletion"
+              asp-action="SubmitRequest"
+              method="post"
+              class="mt-5 max-w-sm"
+              data-confirm="Your request will be sent to an administrator. Your account stays active until it is approved."
+              data-confirm-title="Request account deletion"
+              data-confirm-ok="Send request">
+
+            <label for="delete-password" class="block text-sm font-semibold text-ink mb-1">Confirm your password</label>
+            <input id="delete-password"
+                   name="password"
+                   type="password"
+                   required
+                   autocomplete="current-password"
+                   class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-danger/20 focus:border-danger" />
+
+            <button type="submit" class="mt-4 px-5 py-2.5 rounded-lg border border-danger/40 text-danger font-semibold hover:bg-danger/5">
+                Request account deletion
+            </button>
+        </form>
+    }
+</div>

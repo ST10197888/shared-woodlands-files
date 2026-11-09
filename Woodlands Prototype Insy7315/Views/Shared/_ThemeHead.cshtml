@@ -1,0 +1,37 @@
+@* Shared front-end theme: web fonts, Tailwind theme tokens and the design-system
+   stylesheet. Included by both _Layout and _DashboardLayout so the public site and
+   the dashboard cannot drift apart. *@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+@* Tailwind is still served from the CDN for this milestone. The theme below is the
+   single source of truth for brand colour and type, and mirrors wwwroot/css/site.css,
+   so moving to a compiled Tailwind build later is a config copy, not a rewrite. *@
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    brand: { 50: '#eef4ec', 500: '#4e8b47', 600: '#3c8140', 700: '#2e6b33', 800: '#1d4525', 900: '#16321c' },
+                    accent: { DEFAULT: '#8a5a2b', 600: '#a46b33' },
+                    tan: '#c9a063',
+                    ink: '#23211e',
+                    muted: '#6b6860',
+                    line: '#e4ddd1',
+                    surface: '#f7f4ee',
+                    success: '#2f7a3e'
+                },
+                fontFamily: {
+                    display: ['Fraunces', 'Georgia', 'serif'],
+                    sans: ['Inter', 'Segoe UI', 'system-ui', 'sans-serif']
+                },
+                borderRadius: { DEFAULT: '8px', lg: '14px' },
+                maxWidth: { content: '1200px' }
+            }
+        }
+    };
+</script>
+
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />

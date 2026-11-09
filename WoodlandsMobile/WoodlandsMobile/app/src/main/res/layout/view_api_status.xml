@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/api_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Server Connection Status" />
+
+    <include
+        android:id="@+id/row_api_server"
+        layout="@layout/row_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <include
+        android:id="@+id/row_api_products"
+        layout="@layout/row_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <include
+        android:id="@+id/row_api_branches"
+        layout="@layout/row_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <include
+        android:id="@+id/row_api_faqs"
+        layout="@layout/row_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <include
+        android:id="@+id/row_api_testimonials"
+        layout="@layout/row_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <include
+        android:id="@+id/row_api_quotes"
+        layout="@layout/row_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <include
+        android:id="@+id/row_api_users"
+        layout="@layout/row_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/api_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Press the button to see which parts of the service are online." />
+
+    <Button
+        android:id="@+id/api_check"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Check API status" />
+</LinearLayout>

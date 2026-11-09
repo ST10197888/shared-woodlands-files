@@ -1,0 +1,56 @@
+@model List<Woodlands_Prototype_Insy7315.Models.FaqItem>
+@{
+    ViewData["Title"] = "FAQs";
+    var categories = new[] { "All", "Materials", "Process", "Services", "Installation", "Trade", "Branches", "Warranty" };
+}
+
+<div class="min-h-screen bg-white">
+    <div class="bg-brand-700 py-14 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-content mx-auto">
+            <div class="flex items-center gap-2 text-white/40 text-xs mb-4">
+                <a asp-controller="Home" asp-action="Index" class="hover:text-white/70">Home</a>
+                <span>/</span>
+                <span class="text-white/70">FAQs</span>
+            </div>
+            <h1 class="text-white mb-2 display-1">Frequently Asked Questions</h1>
+            <p class="text-white/55 text-sm">Everything you need to know about our products, process, and pricing.</p>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Category filter -->
+        <div class="flex flex-wrap gap-2 mb-8">
+            @foreach (var cat in categories)
+            {
+                <button data-faq-filter="@cat" class="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all @(cat == "All" ? "bg-brand-700 text-white" : "bg-white text-brand-700 border border-line hover:border-brand-700/50")">
+                    @cat
+                </button>
+            }
+        </div>
+
+        <!-- Accordion -->
+        <div class="space-y-2 mb-10">
+            @foreach (var faq in Model)
+            {
+                <div data-faq-item="@faq.Category" class="bg-white rounded-xl border border-line hover:border-line overflow-hidden transition-all duration-200">
+                    <button data-faq-toggle class="w-full flex items-center justify-between gap-4 px-5 py-4 text-left">
+                        <div class="flex items-center gap-3">
+                            <span class="shrink-0 px-2 py-0.5 bg-brand-700/8 rounded text-brand-700 text-xs font-medium">@faq.Category</span>
+                            <span class="font-semibold text-sm text-brand-700">@faq.Question</span>
+                        </div>
+                        <span data-faq-chevron class="shrink-0 transition-transform duration-300 text-brand-700">&#9660;</span>
+                    </button>
+                    <div data-faq-body class="overflow-hidden transition-all duration-300 max-h-0">
+                        <p class="px-5 pb-5 text-muted text-sm leading-relaxed" style="line-height:1.85;">@faq.Answer</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="bg-brand-700 rounded-xl p-7 text-center">
+            <h3 class="text-white mb-2" style="font-weight:700;font-size:1.2rem;">Still have questions?</h3>
+            <p class="text-white/55 text-sm mb-5">Drop us a message and we'll respond within one business day.</p>
+            <a asp-controller="Contact" asp-action="Index" class="btn btn-primary btn-sm">Contact Us &rarr;</a>
+        </div>
+    </div>
+</div>

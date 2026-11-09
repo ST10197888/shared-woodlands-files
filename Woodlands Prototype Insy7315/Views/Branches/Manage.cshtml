@@ -1,0 +1,124 @@
+﻿@model IEnumerable<Woodlands_Prototype_Insy7315.Models.Branch>
+
+@{
+    
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Branches";
+    ViewData["Subtitle"] = "Manage Woodlands branches";
+
+    ViewData["HeaderAction"] = @"
+        <a href=""/Branches""
+           class=""inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line bg-white text-sm font-semibold text-ink hover:bg-surface"">
+            View public branches
+        </a>";
+}
+
+<div class="mb-6">
+    <div>
+        <h2 class="font-display text-2xl text-brand-700">
+            Branches
+        </h2>
+
+        <p class="text-sm text-muted mt-1">
+            Update the information used by both the website and mobile application.
+        </p>
+    </div>
+</div>
+
+<div class="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+    @foreach (var branch in Model)
+    {
+        <article class="bg-white rounded-xl border border-line overflow-hidden shadow-sm">
+
+            @if (!string.IsNullOrWhiteSpace(branch.Image))
+            {
+                <div class="h-44 overflow-hidden bg-surface">
+                    <img src="@branch.Image"
+                         alt="@branch.Name Branch"
+                         class="w-full h-full object-cover" />
+                </div>
+            }
+            else
+            {
+                <div class="h-44 bg-brand-700 flex items-center justify-center">
+                    <span class="font-display text-2xl text-white">
+                        @branch.Name
+                    </span>
+                </div>
+            }
+
+            <div class="p-5">
+
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <h3 class="font-display text-xl text-brand-700">
+                            @branch.Name Branch
+                        </h3>
+
+                        <p class="text-xs text-muted mt-1">
+                            @branch.Region
+                        </p>
+                    </div>
+
+                    <span class="px-2 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-semibold">
+                        Active
+                    </span>
+                </div>
+
+                <div class="mt-5 space-y-3 text-sm">
+
+                    <div>
+                        <div class="text-[0.65rem] uppercase tracking-wider text-muted font-semibold">
+                            Address
+                        </div>
+                        <div class="text-ink mt-1">
+                            @(string.IsNullOrWhiteSpace(branch.Address) ? "Not set" : branch.Address)
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-[0.65rem] uppercase tracking-wider text-muted font-semibold">
+                            Phone
+                        </div>
+                        <div class="text-ink mt-1">
+                            @(string.IsNullOrWhiteSpace(branch.Phone) ? "Not set" : branch.Phone)
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-[0.65rem] uppercase tracking-wider text-muted font-semibold">
+                            Opening Hours
+                        </div>
+                        <div class="text-ink mt-1">
+                            @(string.IsNullOrWhiteSpace(branch.Hours) ? "Not set" : branch.Hours)
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="flex gap-2 mt-6">
+
+                    <a asp-action="Edit"
+                       asp-route-id="@branch.Id"
+                       class="flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-brand-700 text-white text-sm font-semibold hover:bg-brand-800">
+                        Edit Branch
+                    </a>
+
+                    @if (!string.IsNullOrWhiteSpace(branch.Address))
+                    {
+                        <a href="https://www.google.com/maps/search/?api=1&query=@Uri.EscapeDataString(branch.Address)"
+                           target="_blank"
+                           rel="noopener"
+                           class="px-4 py-2.5 rounded-lg border border-line text-sm font-semibold text-ink hover:bg-surface">
+                            Maps
+                        </a>
+                    }
+
+                </div>
+
+            </div>
+        </article>
+    }
+
+</div>

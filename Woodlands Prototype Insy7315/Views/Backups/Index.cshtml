@@ -1,0 +1,146 @@
+@model Woodlands_Prototype_Insy7315.Models.BackupsIndexViewModel
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Backups";
+    ViewData["Subtitle"] = "Back up, restore and roll back Woodlands data. All three are manual, admin-only actions.";
+
+    string When(DateTime? d) => d.HasValue ? d.Value.ToString("dd MMM yyyy, HH:mm") : "Never";
+}
+
+<div class="grid lg:grid-cols-3 gap-5 mb-6">
+
+    <!--  Back up now  -->
+    <div class="lg:col-span-2 bg-white rounded-xl border border-line shadow-sm p-6 lg:p-8">
+        <h2 class="font-display text-xl text-brand-700">Back up now</h2>
+        <p class="text-sm text-muted mt-2 leading-relaxed">
+            Saves every table as one JSON file. Images uploaded to the site are copied into the same
+            backup folder, and web image links are kept inside the JSON, so a restore brings both back.
+        </p>
+
+        <form asp-action="Run" method="post" id="backup-form"
+              class="mt-5 flex flex-col sm:flex-row sm:items-end gap-3">
+            <div class="flex-1">
+                <label for="backup-note" class="block text-sm font-semibold text-ink mb-1">Note (optional)</label>
+                <input id="backup-note" name="note" maxlength="120"
+                       placeholder="e.g. Before updating product prices"
+                       class="w-full rounded-lg border border-line px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" />
+            </div>
+            <button type="submit" id="backup-btn"
+                    class="px-5 py-2.5 rounded-lg bg-brand-700 text-white text-sm font-semibold hover:bg-brand-800 disabled:opacity-60 disabled:cursor-not-allowed">
+                Back up now
+            </button>
+        </form>
+    </div>
+
+    <!--  Status  -->
+    <div class="bg-white rounded-xl border border-line shadow-sm p-6 lg:p-8">
+        <h2 class="font-display text-xl text-brand-700">Status</h2>
+        <dl class="mt-4 space-y-3 text-sm">
+            <div class="flex justify-between gap-4">
+                <dt class="text-muted">Last backup</dt>
+                <dd class="text-ink font-medium text-right">@When(Model.LastBackupAt)</dd>
+            </div>
+            <div class="flex justify-between gap-4">
+                <dt class="text-muted">Backups</dt>
+                <dd class="text-ink font-medium">@Model.Backups.Count</dd>
+            </div>
+            <div class="flex justify-between gap-4">
+                <dt class="text-muted">Restore points</dt>
+                <dd class="text-ink font-medium">@Model.RestorePoints.Count</dd>
+            </div>
+            <div class="flex justify-between gap-4">
+                <dt class="text-muted">Rollbacks</dt>
+                <dd class="text-ink font-medium">@Model.Rollbacks.Count</dd>
+            </div>
+        </dl>
+        @if (!string.IsNullOrWhiteSpace(Model.StoragePath))
+        {
+            <p class="text-xs text-muted mt-4 break-all">Stored in <span class="font-mono">@Model.StoragePath</span></p>
+        }
+    </div>
+</div>
+
+<!--  Tabs  -->
+<div class="flex flex-wrap gap-2 mb-4" role="tablist">
+    <button type="button" data-tab="backups"
+            class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold">
+        Backups <span class="opacity-70">(@Model.Backups.Count)</span>
+    </button>
+    <button type="button" data-tab="restore-points"
+            class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold">
+        Restore points <span class="opacity-70">(@Model.RestorePoints.Count)</span>
+    </button>
+    <button type="button" data-tab="rollbacks"
+            class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold">
+        Rollbacks <span class="opacity-70">(@Model.Rollbacks.Count)</span>
+    </button>
+</div>
+
+<section data-panel="backups">
+    <p class="text-sm text-muted mb-3">
+        Full copies you made with <strong>Back up now</strong>. Restore or roll back to any of them.
+    </p>
+    @{ ViewData["Empty"] = "No backups yet. Press Back up now to make the first one."; }
+    <partial name="_SnapshotTable" model="Model.Backups" view-data="ViewData" />
+</section>
+
+<section data-panel="restore-points" class="hidden">
+    <p class="text-sm text-muted mb-3">
+        A copy of the live data is saved here automatically just before every <strong>Restore</strong>.
+        Restoring one of these undoes that restore.
+    </p>
+    @{ ViewData["Empty"] = "No restore points yet. One is created automatically each time you restore."; }
+    <partial name="_SnapshotTable" model="Model.RestorePoints" view-data="ViewData" />
+</section>
+
+<section data-panel="rollbacks" class="hidden">
+    <p class="text-sm text-muted mb-3">
+        A copy of the live data is saved here automatically just before every <strong>Rollback</strong>
+        (the option that also deletes rows that are not in the backup). Restoring one brings those rows back.
+    </p>
+    @{ ViewData["Empty"] = "No rollbacks yet. One is created automatically each time you roll back."; }
+    <partial name="_SnapshotTable" model="Model.Rollbacks" view-data="ViewData" />
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            var buttons = document.querySelectorAll('.tab-btn');
+            var panels = document.querySelectorAll('[data-panel]');
+            var on = 'bg-brand-700 text-white'.split(' ');
+            var off = 'border border-line bg-white text-ink hover:bg-surface'.split(' ');
+
+            function show(name) {
+                var known = false;
+                buttons.forEach(function (b) { if (b.dataset.tab === name) known = true; });
+                if (!known) name = 'backups';
+
+                buttons.forEach(function (b) {
+                    var active = b.dataset.tab === name;
+                    on.forEach(function (c) { b.classList.toggle(c, active); });
+                    off.forEach(function (c) { b.classList.toggle(c, !active); });
+                    b.setAttribute('aria-selected', active ? 'true' : 'false');
+                });
+                panels.forEach(function (p) {
+                    p.classList.toggle('hidden', p.dataset.panel !== name);
+                });
+            }
+
+            buttons.forEach(function (b) {
+                b.addEventListener('click', function () { show(b.dataset.tab); });
+            });
+
+            var q = new URLSearchParams(location.search).get('tab');
+            show(q || location.hash.replace('#', '') || 'backups');
+
+            // Stop double clicks while a backup is running
+            var form = document.getElementById('backup-form');
+            var btn = document.getElementById('backup-btn');
+            form.addEventListener('submit', function () {
+                btn.disabled = true;
+                btn.textContent = 'Backing up...';
+            });
+        })();
+    </script>
+}

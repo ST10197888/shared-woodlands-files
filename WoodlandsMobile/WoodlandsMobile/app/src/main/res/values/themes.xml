@@ -1,0 +1,11 @@
+<resources>
+
+<style name="Theme.Woodlands" parent="android:style/Theme.Material.Light.NoActionBar">
+    <item name="android:fontFamily">sans</item>
+    <item name="android:windowLightStatusBar">false</item>
+    <item name="android:statusBarColor">#16321C</item>
+    <item name="android:navigationBarColor">#FFFFFF</item>
+    <item name="android:colorAccent">#2E6B33</item>
+</style>
+
+</resources>

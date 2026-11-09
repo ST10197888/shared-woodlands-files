@@ -1,0 +1,21 @@
+@model Woodlands_Prototype_Insy7315.Models.Testimonial
+@{
+    ViewData["Title"] = "Edit Testimonial";
+    Layout = "_DashboardLayout";
+}
+
+<h1 class="text-xl font-bold text-brand-700 mb-5 display-1">Edit Testimonial</h1>
+
+<form asp-action="Edit" method="post" class="max-w-lg space-y-3">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <input asp-for="Name" class="field" placeholder="Name" />
+    <input asp-for="Role" class="field" placeholder="Role" />
+    <input asp-for="Location" class="field" placeholder="Location" />
+    <input asp-for="Project" class="field" placeholder="Project" />
+    <input asp-for="Rating" type="number" min="1" max="5" class="field" />
+    <textarea asp-for="Review" class="field" rows="4"></textarea>
+
+    <button type="submit" class="px-4 py-2 bg-brand-700 text-white rounded text-sm">Save</button>
+</form>

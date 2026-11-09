@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = "Users";
+    Layout = "_DashboardLayout";
+}
+
+<div class="mb-7">
+
+    <h1 class="text-3xl font-bold text-brand-700"
+        style="font-family:var(--font-display);">
+        Users
+    </h1>
+
+    <p class="text-gray-500 text-sm mt-1">
+        System accounts and assigned roles.
+    </p>
+
+</div>
+
+<div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full text-sm">
+
+            <thead class="bg-gray-50 border-b border-gray-100">
+
+                <tr>
+
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-gray-400">
+                        Name
+                    </th>
+
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-gray-400">
+                        Email
+                    </th>
+
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-gray-400">
+                        Role
+                    </th>
+
+                    <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-gray-400">
+                        Branch
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody class="divide-y divide-gray-50">
+
+                <tr>
+                    <td class="px-5 py-4 font-semibold">Sipho Ndlovu</td>
+                    <td class="px-5 py-4 text-gray-500">admin@woodlandsdb.co.za</td>
+                    <td class="px-5 py-4">Admin</td>
+                    <td class="px-5 py-4 text-gray-400">All branches</td>
+                </tr>
+
+                <tr>
+                    <td class="px-5 py-4 font-semibold">Thandi Mokoena</td>
+                    <td class="px-5 py-4 text-gray-500">soweto@woodlandsdb.co.za</td>
+                    <td class="px-5 py-4">Manager (Soweto)</td>
+                    <td class="px-5 py-4">Soweto</td>
+                </tr>
+
+                <tr>
+                    <td class="px-5 py-4 font-semibold">Riaan Pretorius</td>
+                    <td class="px-5 py-4 text-gray-500">roodepoort@woodlandsdb.co.za</td>
+                    <td class="px-5 py-4">Manager (Roodepoort)</td>
+                    <td class="px-5 py-4">Roodepoort</td>
+                </tr>
+
+                <tr>
+                    <td class="px-5 py-4 font-semibold">Fatima Osman</td>
+                    <td class="px-5 py-4 text-gray-500">randfontein@woodlandsdb.co.za</td>
+                    <td class="px-5 py-4">Manager (Randfontein)</td>
+                    <td class="px-5 py-4">Randfontein</td>
+                </tr>
+
+                <tr>
+                    <td class="px-5 py-4 font-semibold">Kagiso Sithole</td>
+                    <td class="px-5 py-4 text-gray-500">customer@example.com</td>
+                    <td class="px-5 py-4">Customer</td>
+                    <td class="px-5 py-4 text-gray-400">—</td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

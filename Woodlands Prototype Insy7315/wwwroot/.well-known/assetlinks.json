@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.woodlands.mobile",
+      "sha256_cert_fingerprints": [
+        "5B:33:B9:5C:D7:85:76:A4:8A:EF:6E:0D:66:24:F6:AE:1E:B5:0B:E4:D0:AF:69:73:DA:84:A1:AE:80:80:4A:9E"
+      ]
+    }
+  }
+]

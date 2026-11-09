@@ -1,0 +1,186 @@
+@model IEnumerable<Woodlands_Prototype_Insy7315.Models.Service>
+@{
+    ViewData["Title"] = "Services";
+    ViewData["Subtitle"] = "Admins and branch managers can manage services.";
+    ViewData["HeaderAction"] = @"<a href=""/Management/CreateService"" class=""inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-700 text-white text-sm font-semibold hover:bg-brand-800"">
+        <svg width=""16"" height=""16"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2.5"" stroke-linecap=""round""><path d=""M12 5v14M5 12h14""/></svg>
+        New service
+    </a>";
+
+    var allServices = Model.ToList();
+    var currentFilter = ViewData["Filter"] as string ?? "all";
+    var services = currentFilter switch
+    {
+        "inactive" => allServices.Where(s => !s.IsActive).ToList(),
+        "all" => allServices,
+        _ => allServices.Where(s => s.IsActive).ToList()
+    };
+    var activeCount = allServices.Count(s => s.IsActive);
+    var inactiveCount = allServices.Count(s => !s.IsActive);
+}
+
+<div class="bg-white rounded-xl border border-line shadow-sm">
+
+    <!-- Toolbar -->
+    <div class="p-4 border-b border-line flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+
+        <!-- Search -->
+        <div class="relative flex-1 max-w-md">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            <input type="text" id="service-search" placeholder="Search services by name..."
+                   class="w-full rounded-lg border border-line pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" />
+        </div>
+
+        <!-- Active/Inactive tabs -->
+        <div class="flex items-center gap-1.5">
+            <a asp-action="Services" asp-route-filter="active"
+               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors @(currentFilter == "active" ? "bg-brand-700 text-white border-brand-700" : "bg-white text-ink/70 border-line hover:border-brand-700/40")">
+                Active (@activeCount)
+            </a>
+            <a asp-action="Services" asp-route-filter="inactive"
+               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors @(currentFilter == "inactive" ? "bg-brand-700 text-white border-brand-700" : "bg-white text-ink/70 border-line hover:border-brand-700/40")">
+                Inactive (@inactiveCount)
+            </a>
+            <a asp-action="Services" asp-route-filter="all"
+               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors @(currentFilter == "all" ? "bg-brand-700 text-white border-brand-700" : "bg-white text-ink/70 border-line hover:border-brand-700/40")">
+                All (@allServices.Count)
+            </a>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    @if (!services.Any())
+    {
+        <div class="py-16 text-center">
+            <svg class="w-12 h-12 mx-auto text-muted/50 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
+            <h3 class="text-base font-semibold text-ink">No services here</h3>
+            <p class="text-sm text-muted mt-1">
+                @(currentFilter == "inactive" ? "No inactive services at the moment." : "Add your first service to get started.")
+            </p>
+            <a href="/Management/CreateService"
+               class="inline-flex items-center gap-2 mt-5 px-4 py-2 rounded-lg bg-brand-700 text-white text-sm font-semibold hover:bg-brand-800">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                Add service
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Table (desktop) -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-surface text-muted text-xs uppercase tracking-wide">
+                    <tr>
+                        <th class="text-left font-medium px-4 py-3">Service</th>
+                        <th class="text-left font-medium px-4 py-3 w-28">Status</th>
+                        <th class="text-left font-medium px-4 py-3 w-32">Created</th>
+                        <th class="text-right font-medium px-4 py-3 w-32">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-line">
+                    @foreach (var s in services)
+                    {
+                        <tr class="hover:bg-surface/60 transition-colors service-row"
+                            data-search="@s.Name.ToLower()">
+                            <td class="px-4 py-3">
+                                <div class="font-medium text-ink leading-tight">@s.Name</div>
+                                <div class="text-xs text-muted truncate max-w-md">@s.Description</div>
+                            </td>
+                            <td class="px-4 py-3">
+                                @if (s.IsActive)
+                                {
+                                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-success">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-success"></span> Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-muted">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-muted"></span> Inactive
+                                    </span>
+                                }
+                            </td>
+                            <td class="px-4 py-3 text-xs text-muted">
+                                &mdash;
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a asp-action="EditService" asp-route-id="@s.Id"
+                                       class="p-2 rounded-lg text-muted hover:bg-surface hover:text-brand-700" title="Edit">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                    </a>
+                                    <form asp-action="DeleteService" asp-route-id="@s.Id" method="post" class="inline"
+                                          data-confirm="Delete &quot;@s.Name&quot;? This action cannot be undone."
+                                          data-confirm-title="Delete service"
+                                          data-confirm-ok="Delete">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit"
+                                                class="p-2 rounded-lg text-muted hover:bg-danger/10 hover:text-danger" title="Delete">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Card list (mobile) -->
+        <div class="md:hidden divide-y divide-line">
+            @foreach (var s in services)
+            {
+                <div class="p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <div class="font-medium text-ink leading-tight">@s.Name</div>
+                            <div class="text-xs text-muted truncate">@s.Description</div>
+                        </div>
+                        @if (s.IsActive)
+                        {
+                            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-success shrink-0">
+                                <span class="w-1.5 h-1.5 rounded-full bg-success"></span> Active
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-muted shrink-0">
+                                <span class="w-1.5 h-1.5 rounded-full bg-muted"></span> Inactive
+                            </span>
+                        }
+                    </div>
+                    <div class="flex gap-1 mt-3">
+                        <a asp-action="EditService" asp-route-id="@s.Id"
+                           class="px-3 py-1 rounded-md text-xs font-medium border border-line hover:bg-surface">Edit</a>
+                        <form asp-action="DeleteService" asp-route-id="@s.Id" method="post"
+                              data-confirm="Delete &quot;@s.Name&quot;?"
+                              data-confirm-title="Delete service">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="px-3 py-1 rounded-md text-xs font-medium border border-danger/30 text-danger hover:bg-danger/5">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Client-side service search
+        (function () {
+            var input = document.getElementById('service-search');
+            if (!input) return;
+            var rows = document.querySelectorAll('.service-row');
+
+            input.addEventListener('input', function () {
+                var q = this.value.trim().toLowerCase();
+                rows.forEach(function (row) {
+                    var haystack = row.dataset.search || '';
+                    row.style.display = !q || haystack.indexOf(q) !== -1 ? '' : 'none';
+                });
+            });
+        })();
+    </script>
+}

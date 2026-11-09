@@ -1,0 +1,122 @@
+name: Woodlands Build Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - develop
+      - release
+      - staging
+      - integration/role2-devops
+      - feature/role2-devops
+
+  pull_request:
+    branches:
+      - main
+      - dev
+      - develop
+      - release
+      - staging
+
+jobs:
+  build-api:
+    name: Build Node.js API
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: Woodlands API
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Woodlands API/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify API syntax
+        run: node --check server.js
+
+  test-api:
+    name: Run API Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: Woodlands API
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Woodlands API/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Jest and Supertest
+        run: npm test
+
+  build-website:
+    name: Build ASP.NET Website
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore "./Woodlands Prototype Insy7315/Woodlands Prototype Insy7315.csproj"
+
+      - name: Build website
+        run: dotnet build "./Woodlands Prototype Insy7315/Woodlands Prototype Insy7315.csproj" --configuration Release --no-restore
+
+  build-android:
+    name: Build Android Application
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: WoodlandsMobile/WoodlandsMobile
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x gradlew
+
+      - name: Build Android application
+        run: ./gradlew assembleDebug --no-daemon

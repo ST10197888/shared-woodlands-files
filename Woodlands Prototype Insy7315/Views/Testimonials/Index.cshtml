@@ -1,0 +1,53 @@
+@model List<Woodlands_Prototype_Insy7315.Models.Testimonial>
+@{
+    ViewData["Title"] = "Testimonials";
+}
+
+<div class="min-h-screen bg-white">
+    <div class="bg-brand-700 py-14 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-content mx-auto">
+            <div class="flex items-center gap-2 text-white/40 text-xs mb-4">
+                <a asp-controller="Home" asp-action="Index" class="hover:text-white/70">Home</a>
+                <span>/</span>
+                <span class="text-white/70">Testimonials</span>
+            </div>
+            <h1 class="text-white mb-2 display-1">What Our Clients Say</h1>
+            <p class="text-white/80 text-sm">Client feedback will appear here after it has been verified and approved for publication.</p>
+        </div>
+    </div>
+
+    <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        @if (Model.Count == 0)
+        {
+            <p class="mb-12 rounded-lg border border-line bg-surface p-6 text-ink">There are no verified client testimonials published yet.</p>
+        }
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
+            @foreach (var t in Model)
+            {
+                <div class="bg-white rounded-xl p-6 border border-line hover:shadow-lg hover:border-accent/20 transition-all relative flex flex-col">
+                    <div class="flex gap-0.5 mb-3">
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            <span class="@(i < t.Rating ? "text-accent" : "text-gray-200")">&#9733;</span>
+                        }
+                    </div>
+                    <p class="text-muted text-sm leading-relaxed flex-1 mb-4" style="line-height:1.75;">"@t.Review"</p>
+                    <div class="border-t border-surface pt-4 flex items-start justify-between gap-2">
+                        <div>
+                            <div class="text-brand-700 font-bold text-sm">@t.Name</div>
+                            <div class="text-muted text-xs mt-0.5">@t.Role &middot; @t.Location</div>
+                        </div>
+                        <span class="shrink-0 px-2 py-1 bg-accent/10 rounded text-accent text-xs font-medium">@t.Project</span>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="bg-brand-700 rounded-xl p-8 text-center">
+            <h3 class="text-white mb-2" style="font-size:1.5rem;font-weight:700;">Planning a project?</h3>
+            <p class="text-white/80 text-sm mb-5">Send a quote request to get started.</p>
+            <a asp-controller="Contact" asp-action="Index" class="btn btn-primary">Request a Free Quote &rarr;</a>
+        </div>
+    </div>
+</div>

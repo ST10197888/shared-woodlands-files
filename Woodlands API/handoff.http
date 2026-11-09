@@ -1,0 +1,39 @@
+@baseUrl = http://localhost:5000
+@token = PASTE_A_LOGIN_TOKEN_HERE
+
+### 1. Web to phone: create a one-time code (signed in)
+POST {{baseUrl}}/api/auth/handoff
+Authorization: Bearer {{token}}
+
+### 2. Web to phone: redeem the code (no login)
+POST {{baseUrl}}/api/auth/handoff/redeem
+Content-Type: application/json
+
+{
+  "code": "PASTE_CODE_FROM_STEP_1"
+}
+
+### 3. Phone to web: start a request (no login)
+POST {{baseUrl}}/api/auth/handoff/request
+
+### 4. Phone to web: poll the request
+GET {{baseUrl}}/api/auth/handoff/request/PASTE_REQUEST_ID_FROM_STEP_3
+
+### 5. Phone to web: see who is asking (signed in)
+POST {{baseUrl}}/api/auth/handoff/inspect
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "user_code": "PASTE_USER_CODE_FROM_STEP_3"
+}
+
+### 6. Phone to web: approve (set approve to false to deny)
+POST {{baseUrl}}/api/auth/handoff/approve
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "user_code": "PASTE_USER_CODE_FROM_STEP_3",
+  "approve": true
+}

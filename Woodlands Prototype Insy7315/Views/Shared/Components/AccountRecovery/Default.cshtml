@@ -1,0 +1,62 @@
+@model Woodlands_Prototype_Insy7315.ViewComponents.AccountRecoveryViewModel
+
+<div class="bg-white rounded-xl border border-line shadow-sm p-6 lg:p-8">
+    <h2 class="font-display text-xl text-brand-700">Account recovery</h2>
+
+    <form asp-controller="AccountDeletion"
+          asp-action="SetRecovery"
+          method="post"
+          class="mt-5 flex items-start justify-between gap-4">
+
+        <div>
+            <div class="text-sm font-semibold text-ink">Keep a recoverable copy if my account is deleted</div>
+            <p class="text-xs text-muted mt-1 leading-relaxed">
+                When an administrator approves a deletion, your profile details and quote requests are saved so you can restore them if you register again with this email. Nothing is restored unless you ask for it.
+            </p>
+        </div>
+
+        <input type="hidden" name="enabled" value="@(Model.KeepData ? "false" : "true")" />
+
+        <button type="submit"
+                role="switch"
+                aria-checked="@(Model.KeepData ? "true" : "false")"
+                aria-label="Keep a recoverable copy if my account is deleted"
+                class="relative shrink-0 inline-flex h-6 w-11 items-center rounded-full transition-colors @(Model.KeepData ? "bg-brand-700" : "bg-line")">
+            <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform @(Model.KeepData ? "translate-x-5" : "translate-x-0.5")"></span>
+        </button>
+    </form>
+
+    @if (Model.ArchiveAvailable)
+    {
+        <div class="mt-6 pt-6 border-t border-line">
+            <div class="text-sm font-semibold text-ink">Saved data found for your email</div>
+            <p class="text-xs text-muted mt-1 leading-relaxed">
+                A previous account with this email address left a saved copy of its details and quotes. Restoring is optional. We email a 6-digit code to this address first.
+            </p>
+
+            <div class="mt-4 flex flex-wrap items-end gap-3">
+                <form asp-controller="AccountDeletion" asp-action="SendRestoreCode" method="post">
+                    <button type="submit" class="px-4 py-2.5 rounded-lg border border-line text-ink text-sm font-semibold hover:bg-surface">
+                        Email me a code
+                    </button>
+                </form>
+
+                <form asp-controller="AccountDeletion" asp-action="RestoreData" method="post" class="flex items-end gap-3">
+                    <div>
+                        <label for="restore-code" class="block text-xs font-semibold text-ink mb-1">6-digit code</label>
+                        <input id="restore-code"
+                               name="code"
+                               inputmode="numeric"
+                               maxlength="6"
+                               autocomplete="one-time-code"
+                               required
+                               class="w-32 rounded-lg border border-line px-3 py-2.5 text-sm tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" />
+                    </div>
+                    <button type="submit" class="px-4 py-2.5 rounded-lg bg-brand-700 text-white text-sm font-semibold hover:bg-brand-800">
+                        Restore my data
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
+</div>

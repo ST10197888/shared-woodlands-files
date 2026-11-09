@@ -1,0 +1,461 @@
+﻿@using System.Security.Claims
+@using System.Linq
+
+@{
+    var fullName = User.FindFirst("FullName")?.Value
+        ?? User.FindFirst(ClaimTypes.Name)?.Value
+        ?? User.Identity?.Name
+        ?? "User";
+
+    var role = User.FindFirst(ClaimTypes.Role)?.Value ?? "User";
+
+    var initials = string.Concat(
+        fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Take(2)
+            .Select(part => char.ToUpperInvariant(part[0]))
+    );
+
+    var isAdmin = User.IsInRole("Admin");
+
+    var isManager = User.IsInRole("Manager (Soweto)") ||
+                    User.IsInRole("Manager (Roodepoort)") ||
+                    User.IsInRole("Manager (Randfontein)");
+
+    var isStaff = isAdmin || isManager;
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    string NavClass(string controller, string action = "")
+    {
+        var isActive = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+            && (string.IsNullOrEmpty(action) || string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase));
+
+        return isActive
+            ? "bg-brand-700 text-white shadow-sm"
+            : "text-ink/75 hover:bg-surface hover:text-brand-700";
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] &middot; Admin &middot; Woodlands</title>
+
+    <link rel="icon" href="/Images/brand/woodlands-mark.png" type="image/png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            brand: { 50: '#eef4ec', 500: '#4e8b47', 600: '#3c8140', 700: '#2e6b33', 800: '#1d4525', 900: '#16321c' },
+                            accent: { DEFAULT: '#8a5a2b', 600: '#a46b33' },
+                            tan: '#c9a063',
+                            ink: '#23211e',
+                            muted: '#6b6860',
+                            line: '#e4ddd1',
+                            surface: '#f7f4ee',
+                            success: '#2f7a3e',
+                            danger: '#b91c1c'
+                        },
+                        fontFamily: {
+                            display: ['Fraunces', 'Georgia', 'serif'],
+                            sans: ['Inter', 'Segoe UI', 'system-ui', 'sans-serif']
+                        },
+                        borderRadius: { DEFAULT: '8px', lg: '14px' }
+                    }
+                }
+            };
+    </script>
+
+    <link rel="stylesheet" href="/css/site.css" />
+</head>
+
+<body class="min-h-screen bg-surface text-ink font-sans antialiased">
+
+    <div class="flex min-h-screen">
+
+        <!-- SIDEBAR -->
+        <aside id="admin-sidebar"
+               class="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-line transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto transition-transform duration-200 ease-out flex flex-col">
+
+            <div class="h-16 flex items-center gap-3 px-5 border-b border-line shrink-0">
+                <img src="/Images/brand/woodlands-mark.png" alt="Woodlands" class="h-8 w-auto" />
+                <div>
+                    <div class="font-display text-brand-700 text-sm leading-tight">Woodlands</div>
+                    <div class="text-[0.65rem] uppercase tracking-[0.18em] text-muted">Admin</div>
+                </div>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+
+                <a asp-controller="Dashboard" asp-action="Index"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("Dashboard")">
+                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
+                    </svg>
+                    Dashboard
+                </a>
+
+                @if (isStaff)
+                {
+                    <div class="pt-4 pb-1 px-3 text-[0.65rem] uppercase tracking-[0.16em] text-muted">Content</div>
+
+                    <a asp-controller="Management" asp-action="Products"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("Management", "Products")">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                        </svg>
+                        Products
+                    </a>
+
+                    <a asp-controller="Management" asp-action="Services"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("Management", "Services")">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                        </svg>
+                        Services
+                    </a>
+
+                    <a asp-controller="Management" asp-action="ServiceRequests"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("Management", "ServiceRequests")">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        Service Requests
+                    </a>
+
+                    <a asp-controller="ProductDeletionRequests" asp-action="Index"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("ProductDeletionRequests")">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                        </svg>
+                        Product Deletions
+                    </a>
+
+                    <a asp-controller="Branches" asp-action="Manage"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("Branches")">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z" />
+                            <circle cx="12" cy="9" r="2.5" />
+                        </svg>
+                        Branches
+                    </a>
+
+                    <a asp-controller="Admin" asp-action="Testimonials"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("Admin", "Testimonials")">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        Testimonials
+                    </a>
+                }
+
+                @if (isAdmin)
+                {
+                    <a asp-controller="Admin" asp-action="Faqs"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("Admin", "Faqs")">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                        FAQs
+                    </a>
+
+                    <div class="pt-4 pb-1 px-3 text-[0.65rem] uppercase tracking-[0.16em] text-muted">Administration</div>
+
+                    <a asp-controller="Admin" asp-action="Users"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("Admin", "Users")">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                        Users
+                    </a>
+
+                    <a asp-controller="DeletionRequests" asp-action="Index"
+                       class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("DeletionRequests")">
+                        <span class="flex items-center gap-3">
+                            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6" />
+                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                <path d="M10 11v6" />
+                                <path d="M14 11v6" />
+                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                            </svg>
+                            Deletion Requests
+                        </span>
+                        @await Component.InvokeAsync("PendingDeletionBadge")
+                    </a>
+                }
+
+                <div class="pt-4 pb-1 px-3 text-[0.65rem] uppercase tracking-[0.16em] text-muted">Account</div>
+
+                <a asp-controller="MyAccount" asp-action="Profile"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("MyAccount", "Profile")">
+                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    Profile
+                </a>
+
+                <a asp-controller="DeviceHandoff" asp-action="Phone"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("DeviceHandoff")">
+                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="7" y="2" width="10" height="20" rx="2" />
+                        <line x1="11" y1="18" x2="13" y2="18" />
+                    </svg>
+                    Continue on Phone
+                </a>
+
+                <a asp-controller="EmailChange" asp-action="Index"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("EmailChange")">
+                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+                        <polyline points="22,6 12,13 2,6" />
+                    </svg>
+                    Email Change
+                </a>
+
+                <a asp-controller="MyAccount" asp-action="Settings"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("MyAccount", "Settings")">
+                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" y1="21" x2="4" y2="14" />
+                        <line x1="4" y1="10" x2="4" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12" y2="3" />
+                        <line x1="20" y1="21" x2="20" y2="16" />
+                        <line x1="20" y1="12" x2="20" y2="3" />
+                        <line x1="1" y1="14" x2="7" y2="14" />
+                        <line x1="9" y1="8" x2="15" y2="8" />
+                        <line x1="17" y1="16" x2="23" y2="16" />
+                    </svg>
+                    Settings
+                </a>
+
+                <a asp-controller="Notifications" asp-action="Index"
+                   class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium @NavClass("Notifications")">
+                    <span class="flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+                            <path d="M10 21h4" />
+                        </svg>
+                        Notifications
+                    </span>
+                    @await Component.InvokeAsync("NotificationUnreadCount")
+                </a>
+
+                <div class="pt-4 mt-4 border-t border-line">
+                    <a asp-controller="Home" asp-action="Index"
+                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted hover:bg-surface hover:text-brand-700">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg>
+                        Back to public site
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Mobile overlay -->
+        <div id="admin-overlay" class="fixed inset-0 bg-ink/40 z-30 hidden lg:hidden"></div>
+
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 min-w-0 flex flex-col">
+
+            <!-- Top bar -->
+            <header class="h-16 bg-white border-b border-line flex items-center px-4 lg:px-8 gap-4 sticky top-0 z-20 shrink-0">
+
+                <button id="admin-menu-btn" type="button"
+                        class="lg:hidden p-2 -ml-2 rounded-lg hover:bg-surface text-ink"
+                        aria-label="Toggle navigation">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M3 12h18M3 6h18M3 18h18" />
+                    </svg>
+                </button>
+
+                <div class="min-w-0 flex-1">
+                    <h1 class="text-base lg:text-lg font-semibold text-ink truncate">@ViewData["Title"]</h1>
+                    @if (ViewData["Subtitle"] != null)
+                    {
+                        <p class="text-xs text-muted truncate hidden sm:block">@ViewData["Subtitle"]</p>
+                    }
+                </div>
+
+                <div class="flex items-center gap-3 shrink-0">
+
+                    @if (ViewData["HeaderAction"] != null)
+                    {
+                        @Html.Raw(ViewData["HeaderAction"])
+                    }
+
+                    <!-- Logged-in user profile -->
+                    <div class="hidden sm:flex items-center gap-3">
+                        <div class="flex flex-col items-end leading-tight">
+                            <span class="text-sm font-medium text-ink">@fullName</span>
+                            <span class="text-[0.7rem] uppercase tracking-wide text-muted">@role</span>
+                        </div>
+
+                        <div class="h-9 w-9 rounded-full bg-brand-700 text-white flex items-center justify-center text-sm font-semibold"
+                             title="@fullName"
+                             aria-label="User initials: @initials">
+                            @initials
+                        </div>
+                    </div>
+
+                    <form method="post" asp-controller="Account" asp-action="Logout">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="p-2 rounded-lg hover:bg-surface text-muted hover:text-ink" title="Sign out">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                <polyline points="16 17 21 12 16 7" />
+                                <line x1="21" y1="12" x2="9" y2="12" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </header>
+
+            <!-- Flash messages -->
+            @if (TempData["Success"] != null || TempData["Error"] != null || TempData["AdminError"] != null)
+            {
+                <div class="px-4 lg:px-8 pt-4">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="flex items-start gap-3 rounded-lg border border-success/25 bg-success/5 text-success px-4 py-3 text-sm mb-3">
+                            <svg class="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                            <span>@TempData["Success"]</span>
+                        </div>
+                    }
+
+                    @if (TempData["Error"] != null || TempData["AdminError"] != null)
+                    {
+                        <div class="flex items-start gap-3 rounded-lg border border-danger/25 bg-danger/5 text-danger px-4 py-3 text-sm mb-3">
+                            <svg class="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            <span>@(TempData["Error"] ?? TempData["AdminError"])</span>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- PAGE CONTENT -->
+            <main class="flex-1 px-4 lg:px-8 py-6">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <!-- Confirm delete modal -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-ink/50" data-confirm-cancel></div>
+
+        <div class="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 class="text-lg font-semibold text-ink mb-2" id="confirm-title">Are you sure?</h3>
+            <p class="text-sm text-muted mb-6" id="confirm-body">This action cannot be undone.</p>
+
+            <div class="flex justify-end gap-3">
+                <button type="button" class="px-4 py-2 rounded-lg border border-line text-ink font-medium hover:bg-surface" data-confirm-cancel>
+                    Cancel
+                </button>
+                <button type="button" class="px-4 py-2 rounded-lg bg-danger text-white font-medium hover:opacity-90" id="confirm-ok">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            // Mobile sidebar toggle
+            (function () {
+                var btn = document.getElementById('admin-menu-btn');
+                var sidebar = document.getElementById('admin-sidebar');
+                var overlay = document.getElementById('admin-overlay');
+
+                function close() {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
+                }
+
+                function open() {
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.remove('hidden');
+                }
+
+                btn && btn.addEventListener('click', function () {
+                    sidebar.classList.contains('-translate-x-full') ? open() : close();
+                });
+
+                overlay && overlay.addEventListener('click', close);
+            })();
+
+            // Global confirm-delete helper
+            (function () {
+                var modal = document.getElementById('confirm-modal');
+                var titleEl = document.getElementById('confirm-title');
+                var bodyEl = document.getElementById('confirm-body');
+                var okBtn = document.getElementById('confirm-ok');
+                var pendingForm = null;
+
+                function close() {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    pendingForm = null;
+                }
+
+                modal.querySelectorAll('[data-confirm-cancel]').forEach(function (el) {
+                    el.addEventListener('click', close);
+                });
+
+                okBtn.addEventListener('click', function () {
+                    if (pendingForm) pendingForm.submit();
+                    close();
+                });
+
+                document.addEventListener('submit', function (e) {
+                    var form = e.target;
+
+                    if (!form.matches('form[data-confirm]')) return;
+                    if (form.dataset.confirmed === '1') return;
+
+                    e.preventDefault();
+                    pendingForm = form;
+                    titleEl.textContent = form.dataset.confirmTitle || 'Are you sure?';
+                    bodyEl.textContent = form.dataset.confirm || 'This action cannot be undone.';
+                    okBtn.textContent = form.dataset.confirmOk || 'Delete';
+
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }, true);
+            })();
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

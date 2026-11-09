@@ -1,0 +1,186 @@
+﻿@model IEnumerable<Woodlands_Prototype_Insy7315.Models.QuoteRequest>
+@using Woodlands_Prototype_Insy7315.Models
+@{
+    ViewData["Title"] = "Service Requests";
+    ViewData["Subtitle"] = "Quote requests submitted from the public site.";
+
+    var all = Model.ToList();
+    var currentFilter = ViewData["Filter"] as string ?? "all";
+
+    var requests = currentFilter switch
+    {
+        "pending" => all.Where(r => string.Equals(r.Status, "Pending", StringComparison.OrdinalIgnoreCase)).ToList(),
+        "in-progress" => all.Where(r => string.Equals(r.Status, "In Progress", StringComparison.OrdinalIgnoreCase)).ToList(),
+        "completed" => all.Where(r => string.Equals(r.Status, "Completed", StringComparison.OrdinalIgnoreCase)).ToList(),
+        "cancelled" => all.Where(r => string.Equals(r.Status, "Cancelled", StringComparison.OrdinalIgnoreCase)).ToList(),
+        _ => all
+    };
+
+    var pendingCount = all.Count(r => string.Equals(r.Status, "Pending", StringComparison.OrdinalIgnoreCase));
+    var inProgressCount = all.Count(r => string.Equals(r.Status, "In Progress", StringComparison.OrdinalIgnoreCase));
+    var completedCount = all.Count(r => string.Equals(r.Status, "Completed", StringComparison.OrdinalIgnoreCase));
+    var cancelledCount = all.Count(r => string.Equals(r.Status, "Cancelled", StringComparison.OrdinalIgnoreCase));
+
+    string StatusClass(string status) => status switch
+    {
+        "Completed" => "bg-success/10 text-success",
+        "In Progress" => "bg-accent/10 text-accent",
+        "Cancelled" => "bg-danger/10 text-danger",
+        _ => "bg-brand-700/10 text-brand-700"
+    };
+}
+
+<div class="bg-white rounded-xl border border-line shadow-sm">
+
+    <!-- Toolbar -->
+    <div class="p-4 border-b border-line flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+
+        <div class="relative flex-1 max-w-md">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            <input type="text" id="request-search" placeholder="Search by quote code, customer, service or branch..."
+                   class="w-full rounded-lg border border-line pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" />
+        </div>
+
+        <div class="flex flex-wrap items-center gap-1.5">
+            <a asp-action="ServiceRequests" asp-route-status="all"
+               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors @(currentFilter == "all" ? "bg-brand-700 text-white border-brand-700" : "bg-white text-ink/70 border-line hover:border-brand-700/40")">
+                All (@all.Count)
+            </a>
+            <a asp-action="ServiceRequests" asp-route-status="pending"
+               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors @(currentFilter == "pending" ? "bg-brand-700 text-white border-brand-700" : "bg-white text-ink/70 border-line hover:border-brand-700/40")">
+                Pending (@pendingCount)
+            </a>
+            <a asp-action="ServiceRequests" asp-route-status="in-progress"
+               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors @(currentFilter == "in-progress" ? "bg-brand-700 text-white border-brand-700" : "bg-white text-ink/70 border-line hover:border-brand-700/40")">
+                In Progress (@inProgressCount)
+            </a>
+            <a asp-action="ServiceRequests" asp-route-status="completed"
+               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors @(currentFilter == "completed" ? "bg-brand-700 text-white border-brand-700" : "bg-white text-ink/70 border-line hover:border-brand-700/40")">
+                Completed (@completedCount)
+            </a>
+            <a asp-action="ServiceRequests" asp-route-status="cancelled"
+               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors @(currentFilter == "cancelled" ? "bg-brand-700 text-white border-brand-700" : "bg-white text-ink/70 border-line hover:border-brand-700/40")">
+                Cancelled (@cancelledCount)
+            </a>
+        </div>
+    </div>
+
+    @if (!requests.Any())
+    {
+        <div class="py-16 text-center">
+            <svg class="w-12 h-12 mx-auto text-muted/50 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+            <h3 class="text-base font-semibold text-ink">No service requests here</h3>
+            <p class="text-sm text-muted mt-1">
+                @(currentFilter == "all" ? "Requests submitted from the public site will appear here." : $"No requests with status \"{currentFilter}\".")
+            </p>
+        </div>
+    }
+    else
+    {
+        <!-- Table (desktop) -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-surface text-muted text-xs uppercase tracking-wide">
+                    <tr>
+                        <th class="text-left font-medium px-4 py-3">Quote</th>
+                        <th class="text-left font-medium px-4 py-3">Customer</th>
+                        <th class="text-left font-medium px-4 py-3">Service</th>
+                        <th class="text-left font-medium px-4 py-3 w-32">Branch</th>
+                        <th class="text-left font-medium px-4 py-3 w-32">Date</th>
+                        <th class="text-left font-medium px-4 py-3 w-28">Value</th>
+                        <th class="text-left font-medium px-4 py-3 w-32">Status</th>
+                        <th class="text-right font-medium px-4 py-3 w-40">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-line">
+                    @foreach (var r in requests)
+                    {
+                        var displayId = string.IsNullOrWhiteSpace(r.QuoteCode) ? r.Id.ToString() : r.QuoteCode;
+                        <tr class="hover:bg-surface/60 transition-colors request-row"
+                            data-search="@($"{displayId} {r.FirstName} {r.LastName} {r.Email} {r.Service} {r.Branch} {r.Status}".ToLower())">
+                            <td class="px-4 py-3 font-medium text-ink">@displayId</td>
+                            <td class="px-4 py-3">
+                                <div class="text-ink">@($"{r.FirstName} {r.LastName}".Trim())</div>
+                                <div class="text-xs text-muted">@r.Email</div>
+                            </td>
+                            <td class="px-4 py-3 text-ink/70 text-xs">@r.Service</td>
+                            <td class="px-4 py-3 text-ink/70 text-xs">@r.Branch</td>
+                            <td class="px-4 py-3 text-muted text-xs">@r.CreatedAt.ToString("yyyy-MM-dd")</td>
+                            <td class="px-4 py-3 text-ink font-medium">@(string.IsNullOrEmpty(r.Value) ? "—" : r.Value)</td>
+                            <td class="px-4 py-3">
+                                <span class="inline-block px-2 py-0.5 rounded-full text-[0.7rem] font-semibold @StatusClass(r.Status)">@r.Status</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center justify-end gap-1">
+                                    <form asp-controller="Dashboard" asp-action="UpdateQuoteStatus" method="post" class="flex items-center gap-1">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@displayId" />
+                                        <select name="status"
+                                                class="rounded-lg border border-line text-xs px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700"
+                                                onchange="this.form.submit()">
+                                            <option value="Pending" selected="@(r.Status == "Pending")">Pending</option>
+                                            <option value="In Progress" selected="@(r.Status == "In Progress")">In Progress</option>
+                                            <option value="Completed" selected="@(r.Status == "Completed")">Completed</option>
+                                            <option value="Cancelled" selected="@(r.Status == "Cancelled")">Cancelled</option>
+                                        </select>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile cards -->
+        <div class="md:hidden divide-y divide-line">
+            @foreach (var r in requests)
+            {
+                var displayId = string.IsNullOrWhiteSpace(r.QuoteCode) ? r.Id.ToString() : r.QuoteCode;
+                <div class="p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <div class="font-medium text-ink">@displayId · @($"{r.FirstName} {r.LastName}".Trim())</div>
+                            <div class="text-xs text-muted truncate">@r.Service · @r.Branch</div>
+                            <div class="text-xs text-muted mt-0.5">@r.CreatedAt.ToString("yyyy-MM-dd")</div>
+                        </div>
+                        <span class="inline-block px-2 py-0.5 rounded-full text-[0.7rem] font-semibold shrink-0 @StatusClass(r.Status)">@r.Status</span>
+                    </div>
+                    <form asp-controller="Dashboard" asp-action="UpdateQuoteStatus" method="post" class="mt-3 flex items-center gap-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@displayId" />
+                        <select name="status"
+                                class="rounded-lg border border-line text-xs px-2 py-1.5 flex-1 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700">
+                            <option value="Pending" selected="@(r.Status == "Pending")">Pending</option>
+                            <option value="In Progress" selected="@(r.Status == "In Progress")">In Progress</option>
+                            <option value="Completed" selected="@(r.Status == "Completed")">Completed</option>
+                            <option value="Cancelled" selected="@(r.Status == "Cancelled")">Cancelled</option>
+                        </select>
+                        <button type="submit"
+                                class="px-3 py-1.5 rounded-lg bg-brand-700 text-white text-xs font-semibold hover:bg-brand-800">
+                            Update
+                        </button>
+                    </form>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var input = document.getElementById('request-search');
+            if (!input) return;
+            var rows = document.querySelectorAll('.request-row');
+
+            input.addEventListener('input', function () {
+                var q = this.value.trim().toLowerCase();
+                rows.forEach(function (row) {
+                    var haystack = row.dataset.search || '';
+                    row.style.display = !q || haystack.indexOf(q) !== -1 ? '' : 'none';
+                });
+            });
+        })();
+    </script>
+}

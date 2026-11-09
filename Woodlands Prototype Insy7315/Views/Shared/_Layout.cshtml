@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#16321c" />
+    <meta name="description" content="Custom kitchen units, built-in cupboards and TV stands from Woodlands Designer Boards. Browse products or request a quote." />
+    <title>@ViewData["Title"] &middot; Woodlands Designer Boards</title>
+    <link rel="icon" href="~/Images/brand/woodlands-mark.png" type="image/png" />
+    <partial name="_ThemeHead" />
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body class="site-body min-h-screen flex flex-col">
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <header class="site-header sticky top-0 z-50">
+        <div class="site-utility hidden sm:block">
+            <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                <p>Serving Soweto, Roodepoort and Randfontein</p>
+                <p>Mon&ndash;Sun 07:30&ndash;17:00 <span aria-hidden="true">&middot;</span> Sat 08:00&ndash;13:00</p>
+            </div>
+        </div>
+
+        <div class="bg-white/95 backdrop-blur border-b border-line">
+            <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="site-nav-row">
+                    <a asp-controller="Home" asp-action="Index" class="shrink-0 flex items-center" aria-label="Woodlands Designer Boards home">
+                        <img src="~/Images/brand/woodlands-logo.png" alt="Woodlands Designer Boards" class="site-logo" />
+                    </a>
+
+                    <nav class="hidden lg:flex items-center gap-1" aria-label="Main navigation">
+                        <div class="relative group">
+                            <a asp-controller="Products" asp-action="Index" class="nav-link inline-flex items-center gap-2">
+                                Products
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                            </a>
+                            <div class="nav-dropdown absolute top-full left-0 pt-2 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 transition-all duration-200">
+                                <div class="bg-white border border-line rounded-xl py-2 min-w-56 overflow-hidden shadow-lg">
+                                    <a asp-controller="Products" asp-action="Index" asp-route-category="kitchen-units" class="dropdown-link">Kitchen units</a>
+                                    <a asp-controller="Products" asp-action="Index" asp-route-category="tv-stands" class="dropdown-link">TV stands</a>
+                                    <a asp-controller="Products" asp-action="Index" asp-route-category="built-in-cupboards" class="dropdown-link">Built-in cupboards</a>
+                                    <a asp-controller="Products" asp-action="Index" asp-route-category="cutting-edging" class="dropdown-link">Cutting &amp; edging</a>
+                                </div>
+                            </div>
+                        </div>
+                        <a asp-controller="Home" asp-action="About" class="nav-link">About</a>
+                        <a asp-controller="Testimonials" asp-action="Index" class="nav-link">Testimonials</a>
+                        <a asp-controller="FAQs" asp-action="Index" class="nav-link">FAQs</a>
+                        <a asp-controller="Contact" asp-action="Index" class="nav-link">Contact</a>
+                    </nav>
+
+                    <div class="flex items-center gap-2">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <a asp-controller="Dashboard" asp-action="Index" class="hidden lg:inline-flex btn btn-outline btn-sm">Dashboard</a>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="hidden lg:block">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="nav-link">Sign out</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="hidden lg:inline-flex nav-link">Sign in</a>
+                        }
+                        <a asp-controller="Contact" asp-action="Index" class="hidden sm:inline-flex btn btn-primary btn-sm">Request a quote</a>
+                        <button id="nav-toggle" class="menu-toggle lg:hidden" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-menu">
+                            <svg class="menu-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <nav id="mobile-menu" class="lg:hidden hidden mobile-menu" aria-label="Mobile navigation">
+                <a asp-controller="Products" asp-action="Index" class="mobile-link">All products</a>
+                <a asp-controller="Products" asp-action="Index" asp-route-category="kitchen-units" class="mobile-link mobile-sub-link">Kitchen units</a>
+                <a asp-controller="Products" asp-action="Index" asp-route-category="tv-stands" class="mobile-link mobile-sub-link">TV stands</a>
+                <a asp-controller="Products" asp-action="Index" asp-route-category="built-in-cupboards" class="mobile-link mobile-sub-link">Built-in cupboards</a>
+                <a asp-controller="Products" asp-action="Index" asp-route-category="cutting-edging" class="mobile-link mobile-sub-link">Cutting &amp; edging</a>
+                <a asp-controller="Home" asp-action="About" class="mobile-link">About</a>
+                <a asp-controller="Testimonials" asp-action="Index" class="mobile-link">Testimonials</a>
+                <a asp-controller="FAQs" asp-action="Index" class="mobile-link">FAQs</a>
+                <a asp-controller="Contact" asp-action="Index" class="mobile-link">Contact</a>
+                                <a asp-controller="App" asp-action="Index" class="mobile-link">Get the Android app</a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a asp-controller="Dashboard" asp-action="Index" class="mobile-link">Dashboard</a>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="mobile-link w-full text-left">Sign out</button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="mobile-link">Sign in</a>
+                }
+                <a asp-controller="Contact" asp-action="Index" class="btn btn-primary w-full mt-3">Request a quote</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main" class="flex-1">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer mt-auto">
+        <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 pb-10">
+                <div class="sm:col-span-2 lg:col-span-1">
+                    <a asp-controller="Home" asp-action="Index" class="footer-brand">Woodlands <span>Designer Boards</span></a>
+                    <p class="mt-4 max-w-xs text-sm leading-relaxed">Custom cabinetry, board products and quote-led project support across Gauteng.</p>
+                </div>
+                <div>
+                    <h2 class="footer-heading">Products</h2>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Products" asp-action="Index" asp-route-category="kitchen-units">Kitchen units</a></li>
+                        <li><a asp-controller="Products" asp-action="Index" asp-route-category="tv-stands">TV stands</a></li>
+                        <li><a asp-controller="Products" asp-action="Index" asp-route-category="built-in-cupboards">Built-in cupboards</a></li>
+                        <li><a asp-controller="Products" asp-action="Index" asp-route-category="cutting-edging">Cutting &amp; edging</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h2 class="footer-heading">Explore</h2>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Home" asp-action="About">About</a></li>
+                        <li><a asp-controller="Testimonials" asp-action="Index">Testimonials</a></li>
+                        <li><a asp-controller="FAQs" asp-action="Index">FAQs</a></li>
+                        <li><a asp-controller="Contact" asp-action="Index">Contact</a></li>
+                        <li><a asp-controller="App" asp-action="Index">Get the app</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h2 class="footer-heading">Information</h2>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+                        <li><a asp-controller="Home" asp-action="Terms">Terms</a></li>
+                        <li><a asp-controller="Home" asp-action="Refunds">Refunds</a></li>
+                        <li><a asp-controller="Home" asp-action="Cookies">Cookies</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; @DateTime.Now.Year Woodlands Designer Boards</p>
+                <p>Serving Soweto, Roodepoort and Randfontein</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

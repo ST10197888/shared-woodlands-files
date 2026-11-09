@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["Title"] = "Get the Mobile App";
+}
+
+<div class="min-h-screen bg-white">
+    <div class="bg-brand-700 py-14 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-content mx-auto">
+            <div class="flex items-center gap-2 text-white/40 text-xs mb-4">
+                <a asp-controller="Home" asp-action="Index" class="hover:text-white/70">Home</a>
+                <span>/</span>
+                <span class="text-white/70">Get the App</span>
+            </div>
+            <h1 class="text-white mb-2 display-1">Get the Woodlands app</h1>
+            <p class="text-white/80 text-sm max-w-xl">Browse products, request quotes and check your enquiries from your Android phone.</p>
+        </div>
+    </div>
+
+    <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div class="grid lg:grid-cols-2 gap-12 items-start">
+            <div>
+                <p class="text-accent text-sm font-semibold uppercase tracking-wider mb-3">Android download</p>
+                <h2 class="text-brand-700 mb-5 display-2">Install in four steps</h2>
+                <a href="@ViewBag.ApkUrl" download class="btn btn-primary">Download for Android (APK)</a>
+                <p class="text-muted text-xs mt-3">Version @ViewBag.Version. Android only. Use download button if this page is open on an Android device.</p>
+
+                <ol class="text-muted text-sm mt-8" style="line-height:1.9; padding-left:1.25rem; list-style:decimal;">
+                    <li>Tap the download button and wait for the file to finish.</li>
+                    <li>Open the downloaded file from your notifications or Downloads folder.</li>
+                    <li>If asked, allow your browser to install unknown apps.</li>
+                    <li>Tap Install, then open Woodlands.</li>
+                </ol>
+
+                <div class="p-4 bg-brand-700/5 border-l-4 border-accent rounded-r-lg mt-8">
+                    <div class="text-brand-700 font-bold text-sm">Having trouble?</div>
+                    <ul class="text-muted text-xs mt-2" style="line-height:1.8; padding-left:1rem; list-style:disc;">
+                        <li>If Play Protect warns you, choose More details, then Install anyway.</li>
+                        <li>If installation fails, free up storage space and try again.</li>
+                        <li>The first launch can take up to a minute to load data. Wait, then pull to refresh.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="text-align:center;">
+                <div style="display:inline-block; padding:1.5rem; background:#fff; border:1px solid #e7e3db; border-radius:1rem; box-shadow:0 12px 32px rgb(35 33 30 / 0.07);">
+                    <img src="~/images/app-qr.png" alt="QR code linking to this download page" width="260" height="260" />
+                    <p class="text-muted text-xs mt-3">Scan with your phone camera to open this page.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

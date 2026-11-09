@@ -1,0 +1,126 @@
+@model Woodlands_Prototype_Insy7315.Models.ProductDetailViewModel
+@{
+    ViewData["Title"] = Model.Product.Title;
+    var p = Model.Product;
+}
+
+<div class="min-h-screen bg-white">
+    <div class="bg-white border-b border-surface">
+        <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-2 text-xs text-muted">
+            <a asp-controller="Home" asp-action="Index" class="hover:text-accent">Home</a>
+            <span>/</span>
+            <a asp-controller="Products" asp-action="Index" class="hover:text-accent">Products</a>
+            <span>/</span>
+            <a asp-controller="Products" asp-action="Index" asp-route-category="@Model.CategorySlug" class="hover:text-accent">@p.Category</a>
+            <span>/</span>
+            <span class="text-brand-700 font-medium">@p.Title</span>
+        </div>
+    </div>
+
+    <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="grid lg:grid-cols-2 gap-12 mb-16">
+            <!-- Gallery -->
+            <div>
+                <div class="relative rounded-xl overflow-hidden bg-surface aspect-[4/3] mb-3">
+                    <img id="gallery-main" src="@p.Gallery.FirstOrDefault()" alt="@p.Title" class="w-full h-full object-cover" />
+                    @if (!string.IsNullOrEmpty(p.Tag))
+                    {
+                        <span class="absolute top-4 left-4 px-3 py-1 bg-accent text-white text-xs font-bold rounded-full">@p.Tag</span>
+                    }
+                </div>
+                @if (p.Gallery.Count > 1)
+                {
+                    <div class="flex gap-2">
+                        @for (int i = 0; i < p.Gallery.Count; i++)
+                        {
+                            <button data-gallery-thumb data-src="@p.Gallery[i]" aria-label="Show product image @(i + 1) of @p.Title" class="w-20 h-16 rounded-lg overflow-hidden border-2 transition-all @(i == 0 ? "border-accent" : "border-transparent opacity-60 hover:opacity-100")">
+                                <img src="@p.Gallery[i]" alt="" class="w-full h-full object-cover" />
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Details -->
+            <div>
+                <a asp-controller="Products" asp-action="Index" asp-route-category="@Model.CategorySlug" class="inline-flex items-center gap-1 text-accent text-xs font-semibold uppercase tracking-wider mb-3 hover:underline">@p.Category</a>
+                <h1 class="text-brand-700 mb-2 leading-tight display-1">@p.Title</h1>
+                <p class="text-accent italic mb-4 text-base">@p.Tagline</p>
+
+                @if (!string.IsNullOrEmpty(p.Price))
+                {
+                    <div class="text-brand-700 font-bold text-xl mb-5">@p.DisplayPrice</div>
+                }
+
+                <p class="text-muted leading-relaxed mb-6 text-sm" style="line-height:1.8;">@p.Description</p>
+
+                <div class="mb-6">
+                    <h3 class="text-brand-700 font-bold text-sm mb-3 uppercase tracking-wider">Key Features</h3>
+                    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        @foreach (var f in p.Features)
+                        {
+                            <li class="flex items-center gap-2 text-sm text-muted">
+                                <span class="w-5 h-5 bg-accent/10 rounded flex items-center justify-center shrink-0 text-accent text-xs">&#10003;</span> @f
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-brand-700 font-bold text-sm mb-3 uppercase tracking-wider">Available Finishes</h3>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach (var f in p.Finishes)
+                        {
+                            <span class="px-3 py-1.5 bg-white border border-surface rounded text-muted text-xs">@f</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 mb-7 text-sm text-muted">
+                    <span class="text-brand-700"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[1.15em] h-[1.15em]" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+                    <span>Estimated lead time: <strong class="text-brand-700">@p.LeadTime</strong></span>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <a asp-controller="Contact" asp-action="Index" asp-route-service="@p.Category" asp-route-productId="@p.Id"
+                       class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-accent hover:bg-accent-600 text-white font-semibold rounded transition-all duration-200 hover:shadow-lg">
+                        Request a Quote &rarr;
+                    </a>
+                    <a asp-controller="Products" asp-action="Index" asp-route-category="@Model.CategorySlug" class="flex-1 flex items-center justify-center gap-2 py-3.5 bg-brand-700 hover:bg-brand-600 text-white font-medium rounded transition-colors">
+                        View More @p.Category
+                    </a>
+                </div>
+
+                <div class="mt-5 p-3 bg-brand-700/5 border-l-4 border-accent rounded-r text-xs text-muted">
+                    All units built with <strong class="text-brand-700">genuine PG Bison materials</strong> &middot; 12-month workmanship warranty &middot; Supply &amp; install available
+                </div>
+            </div>
+        </div>
+
+        <!-- Related -->
+        @if (Model.Related.Any())
+        {
+            <div>
+                <h2 class="text-brand-700 mb-6" style="font-size:1.5rem;font-weight:700;">More in @p.Category</h2>
+                <div class="grid sm:grid-cols-3 gap-6">
+                    @foreach (var r in Model.Related)
+                    {
+                        <a asp-action="Details" asp-route-id="@r.Id" class="group bg-white rounded-lg overflow-hidden border border-line hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col">
+                            <div class="h-44 overflow-hidden bg-surface">
+                                <img src="@r.Image" alt="@r.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            </div>
+                            <div class="p-4">
+                                <h3 class="text-brand-700 font-bold text-sm mb-1">@r.Title</h3>
+                                <p class="text-muted text-xs leading-relaxed">@r.Tagline</p>
+                                @if (!string.IsNullOrEmpty(r.Price))
+                                {
+                                    <p class="text-accent font-semibold text-xs mt-2">@r.DisplayPrice</p>
+                                }
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

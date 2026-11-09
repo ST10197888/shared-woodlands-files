@@ -1,0 +1,177 @@
+@model IEnumerable<Woodlands_Prototype_Insy7315.Models.Product>
+@{
+    ViewData["Title"] = "Products";
+    ViewData["Subtitle"] = "Manage your product catalogue.";
+    ViewData["HeaderAction"] = @"<a href=""/Management/CreateProduct"" class=""inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-700 text-white text-sm font-semibold hover:bg-brand-800"">
+        <svg width=""16"" height=""16"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2.5"" stroke-linecap=""round""><path d=""M12 5v14M5 12h14""/></svg>
+        New product
+    </a>";
+
+    var products = Model.ToList();
+    var category = ViewBag.ActiveCategory as string;
+    var allCategories = (ViewBag.Categories as IEnumerable<string>) ?? Enumerable.Empty<string>();
+}
+
+<div class="bg-white rounded-xl border border-line shadow-sm">
+
+    <!-- Toolbar -->
+    <div class="p-4 border-b border-line flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+
+        <!-- Search -->
+        <div class="relative flex-1 max-w-md">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            <input type="text" id="product-search" placeholder="Search by name, tagline or category..."
+                   class="w-full rounded-lg border border-line pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" />
+        </div>
+
+        <!-- Category tabs -->
+        <div class="flex flex-wrap items-center gap-1.5">
+            <a asp-action="Products"
+               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors @(string.IsNullOrEmpty(category) ? "bg-brand-700 text-white border-brand-700" : "bg-white text-ink/70 border-line hover:border-brand-700/40")">
+                All (@products.Count)
+            </a>
+            @foreach (var cat in allCategories)
+            {
+                var count = products.Count(p => p.Category == cat);
+                var active = cat == category;
+                <a asp-action="Products" asp-route-category="@cat"
+                   class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors @(active ? "bg-brand-700 text-white border-brand-700" : "bg-white text-ink/70 border-line hover:border-brand-700/40")">
+                    @cat (@count)
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    @if (!products.Any())
+    {
+        <div class="py-16 text-center">
+            <svg class="w-12 h-12 mx-auto text-muted/50 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /></svg>
+            <h3 class="text-base font-semibold text-ink">No products yet</h3>
+            <p class="text-sm text-muted mt-1">
+                @(string.IsNullOrEmpty(category) ? "Add your first product to get started." : $"No products in the {category} category.")
+            </p>
+            <a href="/Management/CreateProduct"
+               class="inline-flex items-center gap-2 mt-5 px-4 py-2 rounded-lg bg-brand-700 text-white text-sm font-semibold hover:bg-brand-800">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                Add product
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Table (desktop) -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm" id="product-table">
+                <thead class="bg-surface text-muted text-xs uppercase tracking-wide">
+                    <tr>
+                        <th class="text-left font-medium px-4 py-3 w-16">Image</th>
+                        <th class="text-left font-medium px-4 py-3">Product</th>
+                        <th class="text-left font-medium px-4 py-3">Category</th>
+                        <th class="text-left font-medium px-4 py-3">Price</th>
+                        <th class="text-left font-medium px-4 py-3 w-24">Tag</th>
+                        <th class="text-right font-medium px-4 py-3 w-32">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-line">
+                    @foreach (var p in products)
+                    {
+                        <tr class="hover:bg-surface/60 transition-colors product-row"
+                            data-search="@($"{p.Title} {p.Tagline} {p.Category} {p.Price}".ToLower())">
+                            <td class="px-4 py-3">
+                                <div class="w-12 h-12 rounded-lg overflow-hidden bg-surface border border-line shrink-0">
+                                    @if (!string.IsNullOrEmpty(p.Image))
+                                    {
+                                        <img src="@p.Image" alt="@p.Title" class="w-full h-full object-cover" />
+                                    }
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="font-medium text-ink leading-tight">@p.Title</div>
+                                <div class="text-xs text-muted truncate max-w-xs">@p.Tagline</div>
+                            </td>
+                            <td class="px-4 py-3 text-ink/75">@p.Category</td>
+                            <td class="px-4 py-3 text-ink/75 font-medium">@p.DisplayPrice</td>
+                            <td class="px-4 py-3">
+                                @if (!string.IsNullOrEmpty(p.Tag))
+                                {
+                                    <span class="inline-block px-2 py-0.5 rounded-full text-[0.7rem] font-semibold bg-accent/10 text-accent">@p.Tag</span>
+                                }
+                                else
+                                {
+                                    <span class="text-xs text-muted/50">&mdash;</span>
+                                }
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a asp-action="EditProduct" asp-route-id="@p.Id"
+                                       class="p-2 rounded-lg text-muted hover:bg-surface hover:text-brand-700" title="Edit">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                    </a>
+                                    <form asp-action="RequestProductDeletion" asp-route-id="@p.Id" method="post" class="inline"
+                                          data-confirm="Request deletion of &quot;@p.Title&quot;? An administrator must approve it first."
+                                          data-confirm-title="Request product deletion"
+                                          data-confirm-ok="Send request">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit"
+                                                class="p-2 rounded-lg text-muted hover:bg-danger/10 hover:text-danger" title="Request deletion">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Card list (mobile) -->
+        <div class="md:hidden divide-y divide-line">
+            @foreach (var p in products)
+            {
+                <div class="p-4 flex gap-3">
+                    <div class="w-16 h-16 rounded-lg overflow-hidden bg-surface border border-line shrink-0">
+                        @if (!string.IsNullOrEmpty(p.Image))
+                        {
+                            <img src="@p.Image" alt="@p.Title" class="w-full h-full object-cover" />
+                        }
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium text-ink leading-tight truncate">@p.Title</div>
+                        <div class="text-xs text-muted truncate">@p.Category &middot; @p.DisplayPrice</div>
+                        <div class="flex gap-1 mt-2">
+                            <a asp-action="EditProduct" asp-route-id="@p.Id"
+                               class="px-3 py-1 rounded-md text-xs font-medium border border-line hover:bg-surface">Edit</a>
+                            <form asp-action="RequestProductDeletion" asp-route-id="@p.Id" method="post"
+                                  data-confirm="Request deletion of &quot;@p.Title&quot;?"
+                                  data-confirm-title="Request product deletion">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="px-3 py-1 rounded-md text-xs font-medium border border-danger/30 text-danger hover:bg-danger/5">Request deletion</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Client-side product search
+        (function () {
+            var input = document.getElementById('product-search');
+            if (!input) return;
+            var rows = document.querySelectorAll('.product-row');
+
+            input.addEventListener('input', function () {
+                var q = this.value.trim().toLowerCase();
+                rows.forEach(function (row) {
+                    var haystack = row.dataset.search || '';
+                    row.style.display = !q || haystack.indexOf(q) !== -1 ? '' : 'none';
+                });
+            });
+        })();
+    </script>
+}

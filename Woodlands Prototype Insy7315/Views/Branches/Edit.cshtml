@@ -1,0 +1,183 @@
+﻿@model Woodlands_Prototype_Insy7315.Models.Branch
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = $"Edit {Model.Name} Branch";
+    ViewData["Subtitle"] = "Update branch information shown on the website and mobile app.";
+}
+
+<div class="max-w-3xl mx-auto">
+
+    <div class="mb-6">
+        <a asp-action="Manage"
+           class="text-sm text-muted hover:text-brand-700">
+            ← Back to Branch Management
+        </a>
+
+        <h2 class="font-display text-2xl text-brand-700 mt-4">
+            @Model.Name Branch
+        </h2>
+
+        <p class="text-sm text-muted mt-1">
+            Update the same branch information available in the Android branch editor.
+        </p>
+    </div>
+
+    <form asp-action="Edit"
+          asp-route-id="@Model.Id"
+          method="post"
+          enctype="multipart/form-data"
+          class="bg-white rounded-xl border border-line p-6">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="Id" type="hidden" />
+        <input asp-for="Name" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-sm text-danger mb-5">
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-5">
+
+            <div>
+                <label class="block text-sm font-semibold text-ink mb-1">
+                    Branch Name
+                </label>
+
+                <input value="@Model.Name"
+                       disabled
+                       class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-muted" />
+
+                <p class="text-xs text-muted mt-1">
+                    Branch names are kept fixed because quotes and manager accounts refer to them.
+                </p>
+            </div>
+
+            <div>
+                <label asp-for="Region"
+                       class="block text-sm font-semibold text-ink mb-1">
+                    Region
+                </label>
+
+                <input asp-for="Region"
+                       class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" />
+
+                <span asp-validation-for="Region"
+                      class="text-xs text-danger">
+                </span>
+            </div>
+
+        </div>
+
+        <div class="mt-5">
+            <label asp-for="Address"
+                   class="block text-sm font-semibold text-ink mb-1">
+                Address
+            </label>
+
+            <input asp-for="Address"
+                   placeholder="e.g. 12 Main Road, Randfontein, Gauteng"
+                   class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" />
+
+            <p class="text-xs text-muted mt-1">
+                This is the address used by the Open Maps button.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-5 mt-5">
+
+            <div>
+                <label asp-for="Phone"
+                       class="block text-sm font-semibold text-ink mb-1">
+                    Phone
+                </label>
+
+                <input asp-for="Phone"
+                       class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" />
+            </div>
+
+            <div>
+                <label asp-for="Hours"
+                       class="block text-sm font-semibold text-ink mb-1">
+                    Opening Hours
+                </label>
+
+                <input asp-for="Hours"
+                       placeholder="e.g. Mon-Fri: 8am-5pm"
+                       class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" />
+            </div>
+
+        </div>
+
+        <div class="mt-5">
+
+            <label asp-for="Notes"
+                   class="block text-sm font-semibold text-ink mb-1">
+                About
+            </label>
+
+            <textarea asp-for="Notes"
+                      rows="5"
+                      placeholder="Short description of this branch"
+                      class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700"></textarea>
+
+        </div>
+
+        <div class="mt-6">
+
+            <label class="block text-sm font-semibold text-ink mb-2">
+                Branch Photo
+            </label>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Image))
+            {
+                <div class="mb-4">
+
+                    <img src="@Model.Image"
+                         alt="@Model.Name Branch"
+                         class="w-full max-w-md h-52 object-cover rounded-xl border border-line" />
+
+                    <p class="text-xs text-muted mt-2">
+                        Current branch photo
+                    </p>
+
+                </div>
+            }
+            else
+            {
+                <div class="w-full max-w-md h-52 rounded-xl bg-brand-700 flex items-center justify-center mb-4">
+                    <span class="font-display text-2xl text-white">
+                        @Model.Name
+                    </span>
+                </div>
+            }
+
+            <input type="file"
+                   name="imageFile"
+                   accept="image/jpeg,image/png"
+                   class="block w-full max-w-md text-sm text-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-700 file:text-white file:font-semibold hover:file:bg-brand-800" />
+
+            <p class="text-xs text-muted mt-2">
+                JPG or PNG. Maximum size: 8 MB.
+            </p>
+
+        </div>
+
+        <div class="flex gap-3 mt-8 pt-6 border-t border-line">
+
+            <button type="submit"
+                    class="px-5 py-2.5 rounded-lg bg-brand-700 text-white font-semibold hover:bg-brand-800">
+                Save Changes
+            </button>
+
+            <a asp-action="Manage"
+               class="px-5 py-2.5 rounded-lg border border-line text-ink font-semibold hover:bg-surface">
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>

@@ -1,0 +1,120 @@
+@model Woodlands_Prototype_Insy7315.Models.FaqFormViewModel
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit FAQ" : "New FAQ";
+    ViewData["Subtitle"] = isEdit ? "Update this question and answer." : "Add a new question and answer.";
+}
+
+<div class="max-w-3xl mx-auto">
+
+    <form asp-action="@(isEdit ? "EditFaq" : "CreateFaq")"
+          asp-route-id="@Model.Id"
+          method="post"
+          class="bg-white rounded-xl border border-line shadow-sm p-6 lg:p-8 space-y-6">
+
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="All" class="text-sm text-danger bg-danger/5 border border-danger/20 rounded-lg px-4 py-3"></div>
+
+        <!-- Category (dropdown + new category) -->
+        <div>
+            <label asp-for="Category" class="block text-sm font-semibold text-ink mb-1">
+                Category <span class="text-danger">*</span>
+            </label>
+
+            <select id="faq-category-select"
+                    class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700">
+                <option value="">— Select category —</option>
+                @foreach (var cat in (ViewBag.Categories as IEnumerable<string> ?? Enumerable.Empty<string>()))
+                {
+                    <option value="@cat" selected="@(cat == Model.Category)">@cat</option>
+                }
+                <option value="__new__" selected="@(Model.Id == 0 || !(ViewBag.Categories as IEnumerable<string> ?? Enumerable.Empty<string>()).Contains(Model.Category))">+ New category…</option>
+            </select>
+
+            <input asp-for="Category" id="faq-category-input"
+                   class="w-full rounded-lg border border-line px-3 py-2.5 mt-2 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700"
+                   placeholder="Type a new category name" />
+
+            <p class="text-xs text-muted mt-1">Groups this FAQ on the public page. Pick an existing one or add a new one.</p>
+            <span asp-validation-for="Category" class="text-xs text-danger"></span>
+        </div>
+
+        <!-- Question -->
+        <div>
+            <label asp-for="Question" class="block text-sm font-semibold text-ink mb-1">
+                Question <span class="text-danger">*</span>
+            </label>
+            <input asp-for="Question"
+                   class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700"
+                   placeholder="e.g. What warranty do you offer?" />
+            <span asp-validation-for="Question" class="text-xs text-danger"></span>
+        </div>
+
+        <!-- Answer -->
+        <div>
+            <label asp-for="Answer" class="block text-sm font-semibold text-ink mb-1">
+                Answer <span class="text-danger">*</span>
+            </label>
+            <textarea asp-for="Answer" rows="6"
+                      class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700"
+                      placeholder="The full answer to this question."></textarea>
+            <span asp-validation-for="Answer" class="text-xs text-danger"></span>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3 pt-4 border-t border-line">
+            <button type="submit"
+                    class="px-5 py-2.5 rounded-lg bg-brand-700 text-white font-semibold hover:bg-brand-800">
+                @(isEdit ? "Save changes" : "Create FAQ")
+            </button>
+            <a asp-action="Faqs"
+               class="px-5 py-2.5 rounded-lg border border-line font-semibold text-ink hover:bg-surface">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var select = document.getElementById('faq-category-select');
+            var input = document.getElementById('faq-category-input');
+            if (!select || !input) return;
+
+            // Are we editing a FAQ whose category is NOT in the existing list?
+            var currentValue = input.value || '';
+            var categories = Array.from(select.options)
+                .map(function (o) { return o.value; })
+                .filter(function (v) { return v !== '' && v !== '__new__'; });
+
+            var isExistingCategory = categories.indexOf(currentValue) !== -1;
+
+            // Initial state: if editing an existing category, hide the text box
+            if (isExistingCategory) {
+                input.style.display = 'none';
+                input.value = currentValue;
+            } else {
+                // Creating new, or category not in list → show the text box
+                input.style.display = '';
+            }
+
+            // When the select changes
+            select.addEventListener('change', function () {
+                if (this.value === '__new__') {
+                    input.style.display = '';
+                    input.value = '';
+                    input.focus();
+                } else if (this.value === '') {
+                    input.style.display = 'none';
+                    input.value = '';
+                } else {
+                    input.style.display = 'none';
+                    input.value = this.value;
+                }
+            });
+        })();
+    </script>
+}

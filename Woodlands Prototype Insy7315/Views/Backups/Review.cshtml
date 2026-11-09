@@ -1,0 +1,191 @@
+@model Woodlands_Prototype_Insy7315.Models.BackupReviewViewModel
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var isRollback = string.Equals(Model.Mode, "rollback", StringComparison.OrdinalIgnoreCase);
+    var word = isRollback ? "ROLLBACK" : "RESTORE";
+    var src = Model.Source;
+
+    ViewData["Title"] = isRollback ? "Roll back to this snapshot" : "Restore from this snapshot";
+    ViewData["Subtitle"] = "Check what will change, then type " + word + " to confirm.";
+
+    bool hasUsers = Model.Tables.Any(t => t.Table == "app_users");
+}
+
+<div class="max-w-4xl mx-auto">
+
+    <div class="mb-6">
+        <a asp-action="Index" class="text-sm text-muted hover:text-brand-700">&larr; Back to Backups</a>
+
+        <h2 class="font-display text-2xl text-brand-700 mt-4">@ViewData["Title"]</h2>
+        <p class="text-sm text-muted mt-1">
+            <span class="font-mono break-all">@src.FileName</span><br />
+            Created @src.CreatedAt.ToString("dd MMM yyyy, HH:mm:ss")@(string.IsNullOrWhiteSpace(src.CreatedBy) ? "" : " by " + src.CreatedBy)
+            &middot; @src.TotalRows.ToString("N0") rows &middot; @src.ImageCount @(src.ImageCount == 1 ? "image" : "images")
+        </p>
+    </div>
+
+    <!--  What will happen  -->
+    @if (isRollback)
+    {
+        <div class="rounded-lg border border-danger/25 bg-danger/5 text-danger px-4 py-3 text-sm mb-5">
+            <strong>Rollback makes the live data match this file exactly.</strong>
+            Rows in the file are written back, and rows that are <u>not</u> in the file are <strong>deleted</strong>.
+            Anything added since this snapshot was taken is removed.
+        </div>
+    }
+    else
+    {
+        <div class="rounded-lg border border-accent/30 bg-accent/5 text-ink px-4 py-3 text-sm mb-5">
+            <strong>Restore writes the rows in this file back.</strong>
+            Rows with the same id are overwritten with the saved values. Rows that are not in the file are left alone and nothing is deleted.
+        </div>
+    }
+
+    <div class="rounded-lg border border-line bg-white px-4 py-3 text-sm text-ink mb-5">
+        <div class="font-semibold">Safety copy first</div>
+        <p class="text-muted mt-1">
+            Before anything changes, the live data is saved as
+            <span class="font-mono break-all">@Model.SafetyFileName</span>
+            in <strong>@Model.SafetyFolder</strong>, so this @(isRollback ? "rollback" : "restore") can be undone.
+        </p>
+    </div>
+
+    <!--  Preview  -->
+    <div class="bg-white rounded-xl border border-line shadow-sm overflow-hidden mb-5">
+        <div class="px-5 py-4 border-b border-line">
+            <h3 class="text-sm font-semibold text-ink">What would change</h3>
+            <p class="text-xs text-muted mt-0.5">Compared with the data as it is right now.</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-surface border-b border-line">
+                    <tr>
+                        <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Table</th>
+                        <th class="text-right px-5 py-3 text-xs uppercase tracking-wider text-muted">In file</th>
+                        <th class="text-right px-5 py-3 text-xs uppercase tracking-wider text-muted">Now</th>
+                        <th class="text-right px-5 py-3 text-xs uppercase tracking-wider text-muted">Add</th>
+                        <th class="text-right px-5 py-3 text-xs uppercase tracking-wider text-muted">Overwrite</th>
+                        @if (isRollback)
+                        {
+                            <th class="text-right px-5 py-3 text-xs uppercase tracking-wider text-muted">Delete</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-line">
+                    @foreach (var t in Model.Tables)
+                    {
+                        <tr>
+                            <td class="px-5 py-3 font-mono text-xs text-ink">@t.Table</td>
+                            <td class="px-5 py-3 text-right text-ink">@t.InSnapshot.ToString("N0")</td>
+                            <td class="px-5 py-3 text-right text-ink">@t.InDatabase.ToString("N0")</td>
+                            <td class="px-5 py-3 text-right text-ink">@t.ToAdd.ToString("N0")</td>
+                            <td class="px-5 py-3 text-right text-ink">@t.ToUpdate.ToString("N0")</td>
+                            @if (isRollback)
+                            {
+                                <td class="px-5 py-3 text-right @(t.ToDelete > 0 ? "text-danger font-semibold" : "text-ink")">@t.ToDelete.ToString("N0")</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (hasUsers)
+    {
+        <p class="text-xs text-muted mb-5">
+            <span class="font-mono">app_users</span> holds profiles only. Login accounts live in Supabase Auth and are not part of a backup@(isRollback ? ", so a rollback removes the profile of anyone who registered after this snapshot" : ", so a restored profile only works if its login still exists").
+        </p>
+    }
+
+    <p class="text-xs text-muted mb-5">
+        @if (src.ImageCount > 0)
+        {
+            <span>The @src.ImageCount image @(src.ImageCount == 1 ? "file" : "files") saved with this snapshot will be copied back to the website. </span>
+        }
+        Web image links are stored in the data and are restored as they are.
+    </p>
+
+    <!--  Confirm  -->
+    <form asp-action="Apply" method="post" id="apply-form"
+          class="bg-white rounded-xl border @(isRollback ? "border-danger/30" : "border-line") shadow-sm p-6">
+
+        <input type="hidden" name="kind" value="@src.Kind" />
+        <input type="hidden" name="name" value="@src.Name" />
+        <input type="hidden" name="mode" value="@(isRollback ? "rollback" : "restore")" />
+
+        <fieldset>
+            <legend class="text-sm font-semibold text-ink mb-2">What should be @(isRollback ? "rolled back" : "restored")?</legend>
+
+            <label class="flex items-center gap-2 text-sm text-ink mb-2">
+                <input type="radio" name="scope" value="all" checked class="accent-[#2e6b33]" />
+                Everything in this snapshot
+            </label>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <label class="flex items-center gap-2 text-sm text-ink">
+                    <input type="radio" name="scope" value="table" class="accent-[#2e6b33]" />
+                    Only one table:
+                </label>
+                <select name="table" id="scope-table" disabled
+                        class="rounded-lg border border-line px-3 py-2 text-sm font-mono disabled:bg-surface disabled:text-muted focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700">
+                    @foreach (var t in Model.Tables)
+                    {
+                        <option value="@t.Table">@t.Table</option>
+                    }
+                </select>
+            </div>
+        </fieldset>
+
+        <div class="mt-6 max-w-sm">
+            <label for="confirm-text" class="block text-sm font-semibold text-ink mb-1">
+                Type <span class="font-mono">@word</span> to confirm
+            </label>
+            <input id="confirm-text" name="confirmText" autocomplete="off" spellcheck="false"
+                   class="w-full rounded-lg border border-line px-3 py-2.5 text-sm font-mono tracking-wider focus:outline-none focus:ring-2 @(isRollback ? "focus:ring-danger/20 focus:border-danger" : "focus:ring-brand-700/20 focus:border-brand-700")" />
+        </div>
+
+        <div class="flex gap-3 mt-6 pt-6 border-t border-line">
+            <button type="submit" id="apply-btn" disabled
+                    class="px-5 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed @(isRollback ? "bg-danger" : "bg-brand-700")">
+                @(isRollback ? "Roll back now" : "Restore now")
+            </button>
+            <a asp-action="Index"
+               class="px-5 py-2.5 rounded-lg border border-line text-ink text-sm font-semibold hover:bg-surface">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var word = '@word';
+            var form = document.getElementById('apply-form');
+            var input = document.getElementById('confirm-text');
+            var btn = document.getElementById('apply-btn');
+            var select = document.getElementById('scope-table');
+
+            function sync() {
+                btn.disabled = input.value.trim() !== word;
+                var scope = form.querySelector('input[name="scope"]:checked').value;
+                select.disabled = scope !== 'table';
+            }
+
+            input.addEventListener('input', sync);
+            form.querySelectorAll('input[name="scope"]').forEach(function (r) {
+                r.addEventListener('change', sync);
+            });
+
+            form.addEventListener('submit', function () {
+                btn.disabled = true;
+                btn.textContent = 'Working...';
+            });
+
+            sync();
+        })();
+    </script>
+}

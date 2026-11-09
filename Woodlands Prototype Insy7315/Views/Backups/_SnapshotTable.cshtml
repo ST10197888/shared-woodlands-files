@@ -1,0 +1,93 @@
+@model List<Woodlands_Prototype_Insy7315.Models.BackupItem>
+
+@{
+    var empty = ViewData["Empty"]?.ToString() ?? "Nothing here yet.";
+
+    string Size(long b) => b >= 1048576 ? $"{b / 1048576.0:0.0} MB"
+                         : b >= 1024 ? $"{b / 1024.0:0.0} KB"
+                         : $"{b} B";
+
+    string KindBadge(string kind) => kind switch
+    {
+        "restore" => "bg-accent/10 text-accent",
+        "rollback" => "bg-danger/10 text-danger",
+        _ => "bg-success/10 text-success"
+    };
+}
+
+@if (Model == null || Model.Count == 0)
+{
+    <div class="bg-white rounded-xl border border-line shadow-sm p-10 text-center text-sm text-muted">
+        @empty
+    </div>
+}
+else
+{
+    <div class="bg-white rounded-xl border border-line shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-surface border-b border-line">
+                    <tr>
+                        <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">File</th>
+                        <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Created</th>
+                        <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Contents</th>
+                        <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Size</th>
+                        <th class="text-right px-5 py-3 text-xs uppercase tracking-wider text-muted">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-line">
+                    @foreach (var item in Model)
+                    {
+                        <tr class="align-top">
+                            <td class="px-5 py-4">
+                                <div class="font-mono text-xs text-ink break-all">@item.FileName</div>
+                                <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-[0.65rem] font-semibold uppercase tracking-wide @KindBadge(item.Kind)">@item.Kind</span>
+                                @if (!string.IsNullOrWhiteSpace(item.Note))
+                                {
+                                    <div class="text-xs text-muted mt-1">@item.Note</div>
+                                }
+                            </td>
+                            <td class="px-5 py-4 text-ink whitespace-nowrap">
+                                <div>@item.CreatedAt.ToString("dd MMM yyyy")</div>
+                                <div class="text-xs text-muted">@item.CreatedAt.ToString("HH:mm:ss")@(string.IsNullOrWhiteSpace(item.CreatedBy) ? "" : " by " + item.CreatedBy)</div>
+                            </td>
+                            <td class="px-5 py-4 text-ink">
+                                <div>@item.TotalRows.ToString("N0") rows in @item.TableCounts.Count tables</div>
+                                <div class="text-xs text-muted">@item.ImageCount @(item.ImageCount == 1 ? "image" : "images") saved</div>
+                                @if (item.TableCounts.Count > 0)
+                                {
+                                    <details class="mt-1">
+                                        <summary class="text-xs text-brand-700 cursor-pointer">Rows per table</summary>
+                                        <ul class="mt-1 text-xs text-muted space-y-0.5">
+                                            @foreach (var t in item.TableCounts)
+                                            {
+                                                <li><span class="font-mono">@t.Key</span>: @t.Value.ToString("N0")</li>
+                                            }
+                                        </ul>
+                                    </details>
+                                }
+                            </td>
+                            <td class="px-5 py-4 text-ink whitespace-nowrap">@Size(item.SizeBytes)</td>
+                            <td class="px-5 py-4">
+                                <div class="flex flex-wrap justify-end gap-2">
+                                    <a asp-action="Download" asp-route-kind="@item.Kind" asp-route-name="@item.Name"
+                                       class="px-3 py-2 rounded-lg border border-line text-ink text-xs font-semibold hover:bg-surface">
+                                        Download
+                                    </a>
+                                    <a asp-action="Review" asp-route-kind="@item.Kind" asp-route-name="@item.Name" asp-route-mode="restore"
+                                       class="px-3 py-2 rounded-lg bg-brand-700 text-white text-xs font-semibold hover:bg-brand-800">
+                                        Restore
+                                    </a>
+                                    <a asp-action="Review" asp-route-kind="@item.Kind" asp-route-name="@item.Name" asp-route-mode="rollback"
+                                       class="px-3 py-2 rounded-lg border border-danger/40 text-danger text-xs font-semibold hover:bg-danger/5">
+                                        Rollback
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

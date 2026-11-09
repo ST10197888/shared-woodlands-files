@@ -1,0 +1,73 @@
+@model Woodlands_Prototype_Insy7315.Models.ProfileViewModel
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "My Profile";
+    ViewData["Subtitle"] = "View and update your account details.";
+}
+
+<div class="max-w-3xl mx-auto space-y-6">
+
+    <div class="bg-white rounded-xl border border-line shadow-sm p-6 lg:p-8">
+        <div class="grid sm:grid-cols-2 gap-5">
+            <div>
+                <div class="text-[0.65rem] uppercase tracking-wider text-muted font-semibold">Role</div>
+                <div class="mt-1 text-sm font-semibold text-brand-700">@Model.Role</div>
+            </div>
+            <div>
+                <div class="text-[0.65rem] uppercase tracking-wider text-muted font-semibold">Branch</div>
+                <div class="mt-1 text-sm text-ink">@(string.IsNullOrWhiteSpace(Model.Branch) ? "All branches / Not applicable" : Model.Branch)</div>
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="Profile"
+          method="post"
+          class="bg-white rounded-xl border border-line shadow-sm p-6 lg:p-8 space-y-6">
+
+        <div>
+            <h2 class="font-display text-xl text-brand-700">Edit details</h2>
+            <p class="text-sm text-muted mt-1">Changes are shared with the mobile app.</p>
+        </div>
+
+        <div asp-validation-summary="ModelOnly" class="text-sm text-danger bg-danger/5 border border-danger/20 rounded-lg px-4 py-3"></div>
+
+        <div>
+            <label asp-for="FullName" class="block text-sm font-semibold text-ink mb-1">
+                Full Name <span class="text-danger">*</span>
+            </label>
+            <input asp-for="FullName" class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" />
+            <span asp-validation-for="FullName" class="text-xs text-danger"></span>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-5">
+            <div>
+                <label class="block text-sm font-semibold text-ink mb-1">Email Address</label>
+                <input value="@Model.Email" disabled class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-muted" />
+                <p class="text-xs text-muted mt-1">Email addresses can't be changed.</p>
+            </div>
+            <div>
+                <label asp-for="PhoneNumber" class="block text-sm font-semibold text-ink mb-1">Phone Number</label>
+                <input asp-for="PhoneNumber" placeholder="e.g. 071 234 5678" class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" />
+                <span asp-validation-for="PhoneNumber" class="text-xs text-danger"></span>
+            </div>
+        </div>
+
+        <div class="flex gap-3 pt-4 border-t border-line">
+            <button type="submit" class="px-5 py-2.5 rounded-lg bg-brand-700 text-white font-semibold hover:bg-brand-800">
+                Save Changes
+            </button>
+            <a asp-controller="Dashboard" asp-action="Index" class="px-5 py-2.5 rounded-lg border border-line font-semibold text-ink hover:bg-surface">
+                Cancel
+            </a>
+        </div>
+    </form>
+
+    <div class="bg-white rounded-xl border border-line shadow-sm p-6 lg:p-8">
+        <h2 class="font-display text-xl text-brand-700">Password</h2>
+        <p class="text-sm text-muted mt-1">Password changes aren't available yet.</p>
+    </div>
+
+    @await Component.InvokeAsync("AccountDeletion")
+
+</div>

@@ -1,0 +1,72 @@
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Settings";
+    ViewData["Subtitle"] = "Account and application settings.";
+
+    var name = User.FindFirst("FullName")?.Value ?? User.Identity?.Name ?? "";
+    var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
+    var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "User";
+    var branch = User.FindFirst("Branch")?.Value;
+
+    var notes = new[]
+    {
+        ("Synced with Woodlands", "Catalogue, quotes and account details are loaded from the Woodlands service and shared with the mobile app."),
+        ("Role-based access", "Pages and actions are shown or hidden based on your account's role, the same as the mobile app."),
+        ("Account deletion", "Deleting your account needs administrator approval. You can send a request from your profile.")
+    };
+}
+
+<div class="max-w-3xl mx-auto space-y-6">
+
+    <div class="bg-white rounded-xl border border-line shadow-sm p-6 lg:p-8">
+        <h2 class="font-display text-xl text-brand-700">My Account</h2>
+
+        <dl class="mt-5 grid sm:grid-cols-2 gap-5">
+            <div>
+                <dt class="text-[0.65rem] uppercase tracking-wider text-muted font-semibold">Name</dt>
+                <dd class="mt-1 text-sm font-semibold text-ink">@name</dd>
+            </div>
+            <div>
+                <dt class="text-[0.65rem] uppercase tracking-wider text-muted font-semibold">Email</dt>
+                <dd class="mt-1 text-sm font-semibold text-ink break-all">@email</dd>
+            </div>
+            <div>
+                <dt class="text-[0.65rem] uppercase tracking-wider text-muted font-semibold">Role</dt>
+                <dd class="mt-1 text-sm font-semibold text-brand-700">@role</dd>
+            </div>
+            <div>
+                <dt class="text-[0.65rem] uppercase tracking-wider text-muted font-semibold">Branch</dt>
+                <dd class="mt-1 text-sm font-semibold text-ink">@(string.IsNullOrWhiteSpace(branch) ? "All branches / Not applicable" : branch)</dd>
+            </div>
+        </dl>
+    </div>
+
+    @await Component.InvokeAsync("AccountRecovery")
+
+    <div class="bg-white rounded-xl border border-line shadow-sm p-6 lg:p-8">
+        <h2 class="font-display text-xl text-brand-700">Data and security</h2>
+
+        <div class="mt-5 space-y-3">
+            @foreach (var (title, body) in notes)
+            {
+                <div class="rounded-lg border border-brand-700/15 bg-brand-50 px-4 py-3">
+                    <div class="text-sm font-semibold text-brand-700">@title</div>
+                    <p class="text-xs text-muted mt-1 leading-relaxed">@body</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+        <a asp-action="Profile" class="px-5 py-2.5 rounded-lg bg-brand-700 text-white font-semibold hover:bg-brand-800">
+            Edit Profile
+        </a>
+
+        <form method="post" asp-controller="Account" asp-action="Logout">
+            <button type="submit" class="px-5 py-2.5 rounded-lg border border-danger/40 text-danger font-semibold hover:bg-danger/5">
+                Logout
+            </button>
+        </form>
+    </div>
+
+</div>

@@ -1,0 +1,185 @@
+@model Woodlands_Prototype_Insy7315.Models.HomeViewModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<!-- HERO CAROUSEL -->
+<section class="relative h-[86vh] min-h-[520px] overflow-hidden bg-brand-900" aria-label="Featured work">
+    @for (int i = 0; i < Model.HeroSlides.Count; i++)
+    {
+        var slide = Model.HeroSlides[i];
+        <div data-hero-slide class="hero-slide @(i == 0 ? "active" : "")" style="background-image:url('@slide.Image')"></div>
+    }
+
+    <div class="absolute inset-0 bg-gradient-to-r from-brand-900/92 via-brand-900/65 to-brand-900/15"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-brand-900/70 via-transparent to-brand-900/25"></div>
+
+    
+    <div class="relative h-full flex items-center">
+        <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div class="max-w-2xl">
+                @for (int i = 0; i < Model.HeroSlides.Count; i++)
+                {
+                    var slide = Model.HeroSlides[i];
+                    <div data-hero-copy class="hero-copy @(i == 0 ? "" : "hidden")">
+                        <h1 class="display-1 text-white mb-5">
+                            @slide.Heading<br />
+                            <span class="text-tan italic font-normal">@slide.Accent</span>
+                        </h1>
+                        <p class="text-white/75 mb-8 text-base sm:text-lg max-w-xl leading-relaxed">@slide.Sub</p>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="@slide.Link" class="btn btn-primary">
+                                @slide.Cta &rarr;
+                            </a>
+                            <a asp-controller="Contact" asp-action="Index" class="btn btn-ghost-light">
+                                Get a Free Quote
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Dot indicators -->
+    <div class="absolute bottom-24 left-1/2 -translate-x-1/2 flex gap-2">
+        @for (int i = 0; i < Model.HeroSlides.Count; i++)
+        {
+            <button data-hero-dot aria-label="Show featured slide @(i + 1)" aria-pressed="@(i == 0 ? "true" : "false")" class="rounded-full transition-all duration-300 @(i == 0 ? "w-7 h-1.5 bg-tan" : "w-1.5 h-1.5 bg-white/40 hover:bg-white/70")"></button>
+        }
+    </div>
+
+    <!-- Prev / Next -->
+    <button data-hero-prev aria-label="Previous featured slide" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full flex items-center justify-center text-white transition-colors">&#8249;</button>
+    <button data-hero-next aria-label="Next featured slide" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full flex items-center justify-center text-white transition-colors">&#8250;</button>
+
+</section>
+
+<!-- CATEGORY GRID -->
+<section class="py-16 sm:py-20 bg-white">
+    <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-end justify-between mb-8">
+            <div>
+                <p class="eyebrow block mb-2">Browse by Category</p>
+                <h2 class="text-brand-700 display-2">What Are You Looking For?</h2>
+            </div>
+            <a asp-controller="Products" asp-action="Index" class="hidden sm:flex items-center gap-1 text-brand-700 text-sm font-medium hover:text-accent transition-colors">View all &rarr;</a>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            @foreach (var cat in Model.Categories)
+            {
+                var isEmpty = cat.Count == 0;
+                var countLabel = isEmpty ? "Coming soon" : $"{cat.Count} product{(cat.Count == 1 ? "" : "s")}";
+
+                <a asp-controller="Products" asp-action="Index" asp-route-category="@cat.Slug"
+                   class="group relative rounded-lg overflow-hidden aspect-[3/4] bg-brand-900 @(isEmpty ? "category-empty" : "")">
+                    <img src="@cat.Image" alt="@cat.Label" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-90 group-hover:opacity-100" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-brand-900 via-brand-900/55 to-brand-900/10"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4">
+                        <div class="eyebrow text-tan mb-1">@countLabel</div>
+                        <h3 class="text-white font-bold text-base leading-tight">@cat.Label</h3>
+                        <p class="text-white/60 text-xs mt-1 leading-snug">@cat.Description</p>
+                        @if (!isEmpty)
+                        {
+                            <div class="mt-3 flex items-center gap-1 text-tan text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200">Shop now &rarr;</div>
+                        }
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="py-16 sm:py-20 bg-white">
+    <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-end justify-between mb-8">
+            <div>
+                <p class="eyebrow block mb-2">Handpicked</p>
+                <h2 class="text-brand-700 display-2">Featured Products</h2>
+            </div>
+            <a asp-controller="Products" asp-action="Index" class="hidden sm:flex items-center gap-1 text-brand-700 text-sm font-medium hover:text-accent transition-colors">View all &rarr;</a>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            @foreach (var p in Model.FeaturedProducts)
+            {
+                <a asp-controller="Products" asp-action="Details" asp-route-id="@p.Id" class="group bg-white rounded-lg overflow-hidden border border-line card-hover flex flex-col">
+                    <div class="relative h-52 overflow-hidden bg-surface">
+                        <img src="@p.Image" alt="@p.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        @if (!string.IsNullOrEmpty(p.Tag))
+                        {
+                            <span class="absolute top-3 right-3 px-2.5 py-1 bg-accent text-white text-xs font-bold rounded-full">@p.Tag</span>
+                        }
+                    </div>
+                    <div class="p-4 flex flex-col flex-1">
+                        <span class="text-accent text-xs font-semibold uppercase tracking-wide">@p.Category</span>
+                        <h3 class="text-brand-700 mt-1 mb-1 font-semibold leading-snug">@p.Title</h3>
+                        <p class="text-muted text-xs flex-1 line-clamp-2 leading-relaxed">@p.Tagline</p>
+                        @if (!string.IsNullOrEmpty(p.Price))
+                        {
+                            <div class="mt-3 flex items-center justify-between">
+                                <span class="text-brand-700 font-bold text-sm">@p.DisplayPrice</span>
+                                <span class="text-accent text-xs font-medium flex items-center gap-1">View &rarr;</span>
+                            </div>
+                        }
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- PG BISON BANNER -->
+<section class="py-14 bg-brand-800">
+    <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-5">
+                <div class="w-14 h-14 bg-accent rounded-lg flex items-center justify-center shrink-0 text-white text-2xl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[1.15em] h-[1.15em]" aria-hidden="true"><path d="M8 21h8M12 17v4M17 4H7v5a5 5 0 0010 0V4z" /><path d="M17 5h3a3 3 0 01-3 3M7 5H4a3 3 0 003 3" /></svg></div>
+                <div>
+                    <h3 class="text-white font-bold text-lg">Authorised PG Bison Partner</h3>
+                    <p class="text-white/55 text-sm mt-0.5">Every unit we build uses 100% genuine PG Bison board materials &mdash; South Africa's standard for quality.</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-4 justify-center md:justify-end">
+                <span class="px-3 py-1.5 bg-white/10 border border-white/15 rounded text-white/70 text-sm">Chipboard</span>
+                <span class="px-3 py-1.5 bg-white/10 border border-white/15 rounded text-white/70 text-sm">MDF</span>
+                <span class="px-3 py-1.5 bg-white/10 border border-white/15 rounded text-white/70 text-sm">Supawood</span>
+                <span class="px-3 py-1.5 bg-white/10 border border-white/15 rounded text-white/70 text-sm">Melamine</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+@if (Model.TestimonialsSnippet?.Any() == true)
+{
+<!-- TESTIMONIALS SNIPPET -->
+<section class="py-16 sm:py-20 bg-white">
+    <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-end justify-between mb-8">
+            <div>
+                <p class="eyebrow block mb-2">What Clients Say</p>
+                <h2 class="text-brand-700 display-2">Trusted Across Gauteng</h2>
+            </div>
+            <a asp-controller="Testimonials" asp-action="Index" class="hidden sm:flex items-center gap-1 text-brand-700 text-sm font-medium hover:text-accent transition-colors">Read all &rarr;</a>
+        </div>
+        <div class="grid sm:grid-cols-3 gap-5">
+            @foreach (var t in Model.TestimonialsSnippet)
+            {
+                <div class="bg-white rounded-lg p-5 border border-line hover:shadow-md transition-shadow">
+                    <div class="flex gap-0.5 mb-3">
+                        @for (int i = 0; i < t.Rating; i++)
+                        {
+                            <span class="text-accent">&#9733;</span>
+                        }
+                    </div>
+                    <p class="text-muted text-sm leading-relaxed mb-4">"@t.Review"</p>
+                    <div class="border-t border-surface pt-3">
+                        <div class="text-brand-700 font-semibold text-sm">@t.Name</div>
+                        <div class="text-muted text-xs">@t.Role</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+}

@@ -1,0 +1,54 @@
+﻿@model string
+@{
+    Layout = null;
+    ViewData["Title"] = "Open Woodlands";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open Woodlands</title>
+    <style>
+            body {
+                font-family: Arial, sans-serif;
+                background: #f4fafa;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+                text-align: center;
+            }
+
+            .container {
+                background: white;
+                padding: 35px;
+                border-radius: 15px;
+                max-width: 400px;
+                margin: 20px;
+            }
+
+            a {
+                display: inline-block;
+                background: #00a6a6;
+                color: white;
+                padding: 14px 25px;
+                border-radius: 8px;
+                text-decoration: none;
+                margin-top: 15px;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Continue in Woodlands</h2>
+        <p>Open the Woodlands mobile app to complete your sign-in.</p>
+        <a href="@Model">Open Woodlands App</a>
+    </div>
+
+    <script>
+            window.location.href = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
+    </script>
+</body>
+</html>

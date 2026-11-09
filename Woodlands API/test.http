@@ -1,0 +1,19 @@
+### 1. Get all branches
+GET http://localhost:5000/api/branches
+
+
+### 2. Add a branch
+POST http://localhost:5000/api/branches
+Content-Type: application/json
+
+{
+  "name": "Woodlands HQ",
+  "region": "KZN",
+  "phone": "031-555-1234",
+  "hours": "8am - 5pm",
+  "notes": "Main branch"
+}
+
+
+### 3. Get branches again
+GET http://localhost:5000/api/branches

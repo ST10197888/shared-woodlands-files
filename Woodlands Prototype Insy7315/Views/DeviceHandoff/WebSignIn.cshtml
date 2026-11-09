@@ -1,0 +1,118 @@
+@model Woodlands_Prototype_Insy7315.Models.WebSignInViewModel
+
+@{
+    ViewData["Title"] = "Sign in with your phone";
+}
+
+<div class="max-w-md mx-auto px-4 py-16">
+    <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-8 text-center">
+
+        <h1 class="text-2xl font-bold text-brand-700 mb-2" style="font-family:var(--font-display);">Sign in with your phone</h1>
+
+        @if (!string.IsNullOrEmpty(Model.Error))
+        {
+            <p class="text-sm text-red-600 mt-4">@Model.Error</p>
+            <a asp-action="WebSignIn" class="inline-block mt-5 btn btn-secondary">Try again</a>
+        }
+        else
+        {
+            <p class="text-sm text-gray-500">Approve this sign-in from the Woodlands app on your phone.</p>
+
+            <div id="waitingArea">
+                <p class="text-xs text-gray-500 mt-6">Your code</p>
+                <div class="mt-1 text-4xl font-semibold tracking-widest text-brand-700" style="font-family:monospace;">@Model.UserCode</div>
+
+                <ol class="text-left text-sm text-gray-700 mt-6 space-y-2 list-decimal list-inside">
+                    <li>Open the Woodlands app and sign in.</li>
+                    <li>Open <strong>More</strong> and choose <strong>Sign in on web</strong>.</li>
+                    <li>Enter the code above, check the browser details, then approve.</li>
+                </ol>
+
+                <p id="statusLine" class="text-sm text-gray-600 mt-6">
+                    Waiting for approval. This code expires in <span id="countdown" class="font-semibold">@Model.ExpiresIn</span> seconds.
+                </p>
+            </div>
+
+            <div id="endedArea" class="hidden">
+                <p id="endedMessage" class="text-sm text-gray-700 mt-6"></p>
+                <a asp-action="WebSignIn" class="inline-block mt-5 btn btn-secondary">Get a new code</a>
+            </div>
+
+            <form id="pollForm">@Html.AntiForgeryToken()</form>
+
+            <p class="text-xs text-gray-500 mt-6">
+                Only approve a sign-in on your phone if you started it on this page.
+            </p>
+        }
+
+        <div class="mt-6">
+            <a asp-controller="Account" asp-action="Login" class="text-sm text-brand-700 font-medium hover:underline">Back to normal login</a>
+        </div>
+    </div>
+</div>
+
+@if (string.IsNullOrEmpty(Model.Error))
+{
+    <script>
+        (function () {
+            var requestId = @Json.Serialize(Model.RequestId);
+            var pollUrl = '@Url.Action("Poll", "DeviceHandoff")';
+            var token = document.querySelector('#pollForm input[name="__RequestVerificationToken"]').value;
+            var remaining = @Model.ExpiresIn;
+            var finished = false;
+            var errors = 0;
+
+            function finish(message) {
+                if (finished) return;
+                finished = true;
+                document.getElementById('waitingArea').classList.add('hidden');
+                document.getElementById('endedMessage').textContent = message;
+                document.getElementById('endedArea').classList.remove('hidden');
+            }
+
+            var timer = setInterval(function () {
+                remaining -= 1;
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    finish('This code has expired.');
+                    return;
+                }
+                document.getElementById('countdown').textContent = remaining;
+            }, 1000);
+
+            function poll() {
+                if (finished) return;
+
+                fetch(pollUrl, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: '__RequestVerificationToken=' + encodeURIComponent(token) + '&requestId=' + encodeURIComponent(requestId)
+                })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (finished) return;
+
+                    if (data.status === 'approved') {
+                        finished = true;
+                        clearInterval(timer);
+                        window.location.href = data.redirect;
+                        return;
+                    }
+                    if (data.status === 'denied') { clearInterval(timer); finish('The request was denied on your phone.'); return; }
+                    if (data.status === 'expired') { clearInterval(timer); finish('This code has expired.'); return; }
+                    if (data.status === 'error') { errors += 1; if (errors >= 5) { clearInterval(timer); finish('Something went wrong. Please try again.'); return; } }
+
+                    setTimeout(poll, 2000);
+                })
+                .catch(function () {
+                    errors += 1;
+                    if (errors >= 5) { clearInterval(timer); finish('Something went wrong. Please try again.'); return; }
+                    setTimeout(poll, 2000);
+                });
+            }
+
+            setTimeout(poll, 2000);
+        })();
+    </script>
+}

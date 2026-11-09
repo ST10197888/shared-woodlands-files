@@ -1,0 +1,194 @@
+@model Woodlands_Prototype_Insy7315.Models.ContactRequest
+@{
+    ViewData["Title"] = "Contact Us";
+    var branches = new[] { "Soweto", "Roodepoort", "Randfontein" };
+    var services = ViewBag.Services as IEnumerable<Woodlands_Prototype_Insy7315.Models.Service> ?? Enumerable.Empty<Woodlands_Prototype_Insy7315.Models.Service>();
+    var requestedProduct = ViewBag.RequestedProduct as Woodlands_Prototype_Insy7315.Models.Product;
+}
+
+<div class="min-h-screen bg-white">
+    <div class="bg-brand-700 py-14 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-content mx-auto">
+            <div class="flex items-center gap-2 text-white/40 text-xs mb-4">
+                <a asp-controller="Home" asp-action="Index" class="hover:text-white/70">Home</a>
+                <span>/</span>
+                <span class="text-white/70">Contact</span>
+            </div>
+            <h1 class="text-white mb-2 display-1">Get in Touch</h1>
+            <p class="text-white/55 text-sm">Request a free quote or ask us anything &mdash; we respond within one business day.</p>
+        </div>
+    </div>
+
+    <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid lg:grid-cols-3 gap-10">
+
+            <!-- Sidebar -->
+            <div class="space-y-4">
+                <div class="bg-brand-700 rounded-xl p-6 text-white">
+                    <h3 class="mb-5 font-bold" style="font-size:1.1rem;">Contact Details</h3>
+                    <div class="space-y-4">
+                        <div class="flex gap-3">
+                            <div class="w-9 h-9 bg-accent rounded-lg flex items-center justify-center shrink-0 text-white text-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[1.15em] h-[1.15em]" aria-hidden="true"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 1.9.7 2.8a2 2 0 01-.4 2.1L8.1 9.9a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.5c.9.4 1.8.6 2.8.7a2 2 0 011.7 2.1z"/></svg></div>
+                            <div>
+                                <div class="text-white/45 text-xs">Call Us</div>
+                                <div class="text-white text-sm font-medium">073 315 8696</div>
+                                <div class="text-white/35 text-xs">Mon&ndash;Fri 07:30&ndash;17:00</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="w-9 h-9 bg-accent rounded-lg flex items-center justify-center shrink-0 text-white text-sm">&#9993;</div>
+                            <div>
+                                <div class="text-white/45 text-xs">Email Us</div>
+                                <div class="text-white text-sm font-medium">woodlandboards14@gmail.com & tunesfor499@gmail.com</div>
+                                <div class="text-white/35 text-xs">Reply within 24 hours</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @foreach (var b in branches)
+                {
+                    <div class="flex items-center gap-3 p-4 bg-white rounded-xl border border-line">
+                        <div class="w-8 h-8 bg-brand-700 rounded-lg flex items-center justify-center shrink-0 text-white text-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[1.15em] h-[1.15em]" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+                        <div>
+                            <div class="text-brand-700 font-bold text-sm">@b Branch</div>
+                            <div class="text-muted text-xs">@b, Gauteng &middot; 073 315 8696</div>
+                        </div>
+                    </div>
+                }
+
+                <div class="flex gap-3 p-4 bg-accent/8 border border-accent/20 rounded-xl">
+                    <span class="text-accent shrink-0 mt-0.5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[1.15em] h-[1.15em]" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+                    <div>
+                        <div class="text-brand-700 font-bold text-sm mb-1">Trading Hours</div>
+                        <div class="text-muted text-xs space-y-0.5">
+                            <p>Mon&ndash;Fri: 07:30 &ndash; 17:00 </p>
+                            <p>Saturday: 07:00 &ndash; 17:00</p>
+                            <div class="text-red/35 text-xs">Soweto branch is open from 07:00 &ndash; 18:00</div>
+                            <p>Sun &amp; Public Holidays: 07:00 &ndash; 17:00  </p>
+                            <div class="text-red/35 text-xs">Randfontein branch is closed on Sundays</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <div class="@(requestedProduct != null ? "lg:col-span-1" : "lg:col-span-2")">
+                <form asp-controller="Contact" asp-action="Index" method="post" class="bg-white rounded-xl border border-line p-6 sm:p-8">
+                    <h2 class="text-brand-700 mb-6" style="font-weight:700;font-size:1.3rem;">Request a Free Quote</h2>
+
+                    <div asp-validation-summary="ModelOnly" class="text-[#b3261e] text-xs mb-4"></div>
+
+                    <input type="hidden" asp-for="ProductId" />
+
+                    <div class="grid sm:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label asp-for="FirstName" class="field-label">First Name <span class="text-[#b3261e]" aria-hidden="true">*</span></label>
+                            <input asp-for="FirstName" placeholder="Thabo" class="field" />
+                            <span asp-validation-for="FirstName" class="text-[#b3261e] text-xs mt-1.5 block"></span>
+                        </div>
+                        <div>
+                            <label asp-for="LastName" class="field-label">Last Name <span class="text-[#b3261e]" aria-hidden="true">*</span></label>
+                            <input asp-for="LastName" placeholder="Mokoena" class="field" />
+                            <span asp-validation-for="LastName" class="text-[#b3261e] text-xs mt-1.5 block"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Email" class="field-label">Email Address <span class="text-[#b3261e]" aria-hidden="true">*</span></label>
+                            <input asp-for="Email" placeholder="thabo@example.com" class="field" />
+                            <span asp-validation-for="Email" class="text-[#b3261e] text-xs mt-1.5 block"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Phone" class="field-label">Phone Number <span class="text-[#b3261e]" aria-hidden="true">*</span</label>
+                            <input asp-for="Phone" type="tel" autocomplete="tel" placeholder="071 000 0000" class="field" />
+                            <span asp-validation-for="Phone" class="text-[#b3261e] text-xs mt-1.5 block"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Branch" class="field-label">Nearest Branch <span class="text-[#b3261e]" aria-hidden="true">*</span></label>
+                            <select asp-for="Branch" class="field">
+                                <option value="">Select branch&hellip;</option>
+                                @foreach (var b in branches)
+                                {
+                                    <option value="@b">@b</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Branch" class="text-[#b3261e] text-xs mt-1.5 block"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Service" class="field-label">Service Required <span class="text-[#b3261e]" aria-hidden="true">*</span></label>
+                            <select asp-for="Service" class="field">
+                                <option value="">Select service&hellip;</option>
+                                @foreach (var s in services)
+                                {
+                                    <option value="@s.Name">@s.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Service" class="text-[#b3261e] text-xs mt-1.5 block"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label asp-for="Message" class="field-label">Project Description <span class="text-[#b3261e]" aria-hidden="true">*</span></label>
+                        <textarea asp-for="Message" rows="4" placeholder="Describe your project — room size, number of doors, preferred finishes, timeline…" class="w-full px-4 py-3 rounded-lg border border-brand-700/15 text-sm bg-white text-ink outline-none focus:border-brand-700 focus:ring-1 focus:ring-brand-700 transition-colors resize-none"></textarea>
+                        <span asp-validation-for="Message" class="text-[#b3261e] text-xs mt-1.5 block"></span>
+                    </div>
+
+                    <button type="submit" class="flex items-center justify-center gap-2 w-full py-3.5 bg-accent hover:bg-accent-600 text-white font-bold rounded-lg transition-all hover:shadow-lg">
+                        &#9993; Submit Quote Request
+                    </button>
+                    <p class="text-center text-muted text-xs mt-3">We use these details to respond to your request. We do not sign you up for marketing.</p>
+                    <div class="mb-5">
+                        <label class="flex items-start gap-2 text-sm text-ink">
+                            <input asp-for="PrivacyAcknowledged" class="mt-1 accent-brand-700" />
+                            <span>I have read the <a asp-controller="Home" asp-action="Privacy" class="underline text-brand-700">privacy notice</a> and understand my details will be used to respond to this quote request.</span>
+                        </label>
+                        <span asp-validation-for="PrivacyAcknowledged" class="text-[#b3261e] text-xs mt-1.5 block"></span>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Requested product summary -->
+            @if (requestedProduct != null)
+            {
+                <div class="lg:col-span-1">
+                    <div class="lg:sticky lg:top-24">
+                        <p class="text-accent text-xs font-semibold uppercase tracking-wider mb-3">Requested Product</p>
+
+                        <a asp-controller="Products" asp-action="Details" asp-route-id="@requestedProduct.Id"
+                           class="group block bg-white rounded-lg overflow-hidden border border-line card-hover">
+                            <div class="relative h-52 overflow-hidden bg-surface">
+                                <img src="@requestedProduct.Image" alt="@requestedProduct.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                @if (!string.IsNullOrEmpty(requestedProduct.Tag))
+                                {
+                                    <span class="absolute top-3 right-3 px-2.5 py-1 bg-accent text-white text-xs font-bold rounded-full">@requestedProduct.Tag</span>
+                                }
+                            </div>
+                            <div class="p-4">
+                                <span class="text-accent text-xs font-semibold uppercase tracking-wide">@requestedProduct.Category</span>
+                                <h3 class="text-brand-700 mt-1 mb-1 font-semibold leading-snug">@requestedProduct.Title</h3>
+                                <p class="text-muted text-xs leading-relaxed line-clamp-2">@requestedProduct.Tagline</p>
+                                @if (!string.IsNullOrEmpty(requestedProduct.Price))
+                                {
+                                    <div class="mt-3 flex items-center justify-between">
+                                        <span class="text-brand-700 font-bold text-sm">@requestedProduct.DisplayPrice</span>
+                                        <span class="text-accent text-xs font-medium flex items-center gap-1">View product &rarr;</span>
+                                    </div>
+                                }
+                            </div>
+                        </a>
+
+                        <a asp-controller="Contact" asp-action="Index"
+                           class="mt-3 block text-center text-xs text-muted hover:text-accent underline">
+                            Remove product from request
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

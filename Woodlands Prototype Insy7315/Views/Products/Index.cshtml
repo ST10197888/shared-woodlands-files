@@ -1,0 +1,83 @@
+@model Woodlands_Prototype_Insy7315.Models.ProductsIndexViewModel
+@{
+    ViewData["Title"] = Model.ActiveCategory ?? "Products";
+}
+
+<div class="min-h-screen bg-white">
+    <div class="bg-brand-700 py-10 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-content mx-auto">
+            <div class="flex items-center gap-2 text-white/40 text-xs mb-4">
+                <a asp-controller="Home" asp-action="Index" class="hover:text-white/70">Home</a>
+                <span>/</span>
+                <a asp-controller="Products" asp-action="Index" class="hover:text-white/70">Products</a>
+                @if (Model.ActiveCategory != null)
+                {
+                    <span>/</span>
+                    <span class="text-white/70">@Model.ActiveCategory</span>
+                }
+            </div>
+            <h1 class="text-white mb-2 display-1">@(Model.ActiveCategory ?? "All Products")</h1>
+            <p class="text-white/55 text-sm">@Model.PageSubtitle</p>
+        </div>
+    </div>
+
+    <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Category pills -->
+        <div class="flex flex-wrap gap-2 mb-8">
+            <a asp-action="Index" class="px-4 py-2 rounded-full text-sm font-medium transition-all @(Model.ActiveCategory == null ? "bg-brand-700 text-white shadow" : "bg-white text-brand-700 border border-line hover:border-brand-700/50")">
+                All (@Model.TotalProductCount)
+            </a>
+            @foreach (var cat in Model.Categories)
+            {
+                <a asp-action="Index" asp-route-category="@cat.Slug" class="px-4 py-2 rounded-full text-sm font-medium transition-all @(Model.ActiveCategory == cat.Label ? "bg-brand-700 text-white shadow" : "bg-white text-brand-700 border border-line hover:border-brand-700/50")">
+                    @cat.Label (@cat.Count)
+                </a>
+            }
+        </div>
+
+        <p class="text-muted text-sm mb-6">
+            Showing <strong class="text-brand-700">@Model.Products.Count</strong> product@(Model.Products.Count != 1 ? "s" : "")@(Model.ActiveCategory != null ? $" in {Model.ActiveCategory}" : "")
+        </p>
+
+        <!-- Grid -->
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            @foreach (var p in Model.Products)
+            {
+                <a asp-action="Details" asp-route-id="@p.Id" class="group bg-white rounded-lg overflow-hidden border border-line card-hover flex flex-col">
+                    <div class="relative h-52 overflow-hidden bg-surface">
+                        <img src="@p.Image" alt="@p.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        @if (!string.IsNullOrEmpty(p.Tag))
+                        {
+                            <span class="absolute top-3 right-3 px-2.5 py-1 bg-accent text-white text-xs font-bold rounded-full">@p.Tag</span>
+                        }
+                    </div>
+                    <div class="p-5 flex flex-col flex-1">
+                        <span class="text-accent text-xs font-semibold uppercase tracking-wider">@p.Category</span>
+                        <h3 class="text-brand-700 mt-1 mb-1 font-bold leading-snug" style="font-size:1.05rem;">@p.Title</h3>
+                        <p class="text-muted text-xs flex-1 leading-relaxed line-clamp-2 mb-3">@p.Tagline</p>
+                        <ul class="space-y-1 mb-4">
+                            @foreach (var f in p.Features.Take(3))
+                            {
+                                <li class="flex items-center gap-2 text-muted text-xs"><span class="text-accent">&#10003;</span> @f</li>
+                            }
+                        </ul>
+                        <div class="flex items-center justify-between pt-3 border-t border-surface">
+                            @if (!string.IsNullOrEmpty(p.Price))
+                            {
+                                <span class="text-brand-700 font-bold text-sm">@p.DisplayPrice</span>
+                            }
+                            <span class="ml-auto text-accent text-xs font-semibold flex items-center gap-1">View details &rarr;</span>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+
+        <!-- CTA strip -->
+        <div class="mt-14 bg-brand-700 rounded-xl p-8 text-center">
+            <h3 class="text-white mb-2" style="font-size:1.4rem;font-weight:700;">Don't see exactly what you need?</h3>
+            <p class="text-white/55 text-sm mb-5">All our products are fully custom. Get in touch and we'll design something built around your space.</p>
+            <a asp-controller="Contact" asp-action="Index" class="btn btn-primary">Request a Custom Quote &rarr;</a>
+        </div>
+    </div>
+</div>

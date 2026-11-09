@@ -1,0 +1,92 @@
+@model Woodlands_Prototype_Insy7315.Models.PhoneHandoffViewModel
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Continue on Your Phone";
+    ViewData["Subtitle"] = "Sign in to the Woodlands app without typing your password.";
+}
+
+<style>
+    .qr-box {
+        width: 100%;
+        max-width: 320px;
+        min-height: 320px;
+        margin: 20px auto;
+        padding: 16px;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: visible;
+    }
+
+        .qr-box svg {
+            display: block;
+            width: 100%;
+            max-width: 280px;
+            height: auto;
+            margin: 0 auto;
+            flex-shrink: 0;
+            object-fit: contain;
+        }
+</style>
+
+<div class="max-w-xl mx-auto">
+    @if (!string.IsNullOrEmpty(Model.Error))
+    {
+        <div class="bg-white rounded-xl border border-line shadow-sm p-8 text-center">
+            <p class="text-sm text-danger">@Model.Error</p>
+            <a asp-action="Phone" class="inline-block mt-5 px-5 py-2.5 rounded-lg bg-brand-700 text-white font-semibold hover:bg-brand-800">Try again</a>
+        </div>
+    }
+    else
+    {
+        <div class="bg-white rounded-xl border border-line shadow-sm p-6 lg:p-8 text-center">
+            <div id="codeArea">
+                <div class="qr-box mx-auto w-56 h-56 p-2 border border-line rounded-lg bg-white">
+                    @Html.Raw(Model.QrSvg)
+                </div>
+
+                <p class="text-xs text-muted mt-5">Or type this code in the app</p>
+                <div class="mt-1 text-3xl font-semibold tracking-widest text-brand-700" style="font-family:monospace;">@Model.Display</div>
+
+                <p class="text-sm text-ink mt-4">
+                    Code expires in <span id="countdown" class="font-semibold">@Model.ExpiresIn</span> seconds
+                </p>
+            </div>
+
+            <div id="expiredArea" class="hidden">
+                <p class="text-sm text-ink">This code has expired.</p>
+                <a asp-action="Phone" class="inline-block mt-4 px-5 py-2.5 rounded-lg bg-brand-700 text-white font-semibold hover:bg-brand-800">Get a new code</a>
+            </div>
+
+            <ol class="text-left text-sm text-ink mt-6 pt-6 border-t border-line space-y-2 list-decimal list-inside">
+                <li>Scan the QR code with your phone's camera, or open the Woodlands app and choose <strong>Sign in with a code from the web</strong>.</li>
+                <li>If you scanned it, the app opens and signs you in. If you typed it, enter the code and continue.</li>
+            </ol>
+
+            <p class="text-xs text-muted mt-5">
+                The code works once. Only use it on your own phone and never share it with anyone else.
+            </p>
+        </div>
+
+        <script>
+            (function () {
+                var remaining = @Model.ExpiresIn;
+                var label = document.getElementById('countdown');
+                var timer = setInterval(function () {
+                    remaining -= 1;
+                    if (remaining <= 0) {
+                        clearInterval(timer);
+                        document.getElementById('codeArea').classList.add('hidden');
+                        document.getElementById('expiredArea').classList.remove('hidden');
+                        return;
+                    }
+                    label.textContent = remaining;
+                }, 1000);
+            })();
+        </script>
+    }
+</div>

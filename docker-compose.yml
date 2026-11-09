@@ -1,0 +1,32 @@
+services:
+  api:
+    build:
+      context: ./Woodlands API
+    env_file:
+      - ./Woodlands API/.env
+    environment:
+      PORT: "5000"
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  mobile-build:
+    profiles: ["mobile"]
+    build:
+      context: ./WoodlandsMobile/WoodlandsMobile
+    volumes:
+      - ./apk-out:/out
+      
+  web:
+    build:
+      context: ./Woodlands Prototype Insy7315
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      NodeApi__BaseUrl: http://api:5000/
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+    

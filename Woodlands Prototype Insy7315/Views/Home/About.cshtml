@@ -1,0 +1,132 @@
+@{
+    ViewData["Title"] = "About Us";
+}
+
+<div class="min-h-screen bg-white">
+    <div class="bg-brand-700 py-14 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-content mx-auto">
+            <div class="flex items-center gap-2 text-white/40 text-xs mb-4">
+                <a asp-controller="Home" asp-action="Index" class="hover:text-white/70">Home</a>
+                <span>/</span>
+                <span class="text-white/70">About Us</span>
+            </div>
+            <h1 class="text-white mb-2 display-1">About Woodlands Designer Boards</h1>
+            <p class="text-white/80 text-sm max-w-xl">Explore our custom furniture and cabinetry services for homes, designers, and contractors across Gauteng.</p>
+        </div>
+    </div>
+
+    <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-14">
+
+        <!-- Story -->
+        <div class="grid lg:grid-cols-2 gap-12 items-center mb-16">
+            <div>
+
+                <p class="text-accent text-sm font-semibold uppercase tracking-wider mb-3">Our Story</p>
+                <h2 class="text-brand-700 mb-5 display-2">Custom Spaces Across Gauteng</h2>
+                <p class="text-muted mb-4 leading-relaxed text-sm" style="line-height:1.85;">
+                    Woodlands Designer Boards creates custom furniture and cabinetry for residential and trade projects. We help clients plan their spaces, choose suitable materials, and shape a design around their needs.
+                </p>
+                <p class="text-muted mb-6 leading-relaxed text-sm" style="line-height:1.85;">
+                    Our range includes board materials and made-to-measure units. Get in touch to discuss your project, material options, measurements, and installation requirements.
+                </p>
+                <div class="flex items-start gap-3 p-4 bg-brand-700/5 border-l-4 border-accent rounded-r-lg">
+                    <span class="text-accent shrink-0 mt-0.5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[1.15em] h-[1.15em]" aria-hidden="true"><path d="M8 21h8M12 17v4M17 4H7v5a5 5 0 0010 0V4z"/><path d="M17 5h3a3 3 0 01-3 3M7 5H4a3 3 0 003 3"/></svg></span>
+                    <div>
+                        <div class="text-brand-700 font-bold text-sm">Materials for your project</div>
+                        <div class="text-muted text-xs mt-0.5">Ask us about available board and finish options.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="col-span-2 h-56 rounded-xl overflow-hidden bg-surface">
+                    <img src="https://images.unsplash.com/photo-1765371515101-6ff0001751cc?w=800&h=400&fit=crop&auto=format" alt="Example kitchen inspiration photo; not a confirmed Woodlands project" class="w-full h-full object-cover" />
+                </div>
+                <div class="h-40 rounded-xl overflow-hidden bg-surface">
+                    <img src="https://images.unsplash.com/photo-1721742604074-8e998cee43f2?w=400&h=300&fit=crop&auto=format" alt="Example living room project; not a confirmed Woodlands project" class="w-full h-full object-cover" />
+                </div>
+                <div class="h-40 rounded-xl overflow-hidden bg-surface">
+                    <img src="https://images.unsplash.com/photo-1659930087003-2d64e33181f7?w=400&h=300&fit=crop&auto=format" alt="Example of Precision woodworking; not a confirmed Woodlands project" class="w-full h-full object-cover" />
+                </div>
+            </div>
+        </div>
+
+@*         <!-- Stats -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-5 mb-16">
+            <div class="bg-white rounded-xl p-6 text-center border border-line"><div class="text-accent" style="font-size:2rem;font-weight:700;">15+</div><div class="text-muted text-xs mt-1">Years in Business</div></div>
+            <div class="bg-white rounded-xl p-6 text-center border border-line"><div class="text-accent" style="font-size:2rem;font-weight:700;">500+</div><div class="text-muted text-xs mt-1">Projects Completed</div></div>
+            <div class="bg-white rounded-xl p-6 text-center border border-line"><div class="text-accent" style="font-size:2rem;font-weight:700;">3</div><div class="text-muted text-xs mt-1">Gauteng Branches</div></div>
+            <div class="bg-white rounded-xl p-6 text-center border border-line"><div class="text-accent" style="font-size:2rem;font-weight:700;">100%</div><div class="text-muted text-xs mt-1">PG Bison Materials</div></div>
+        </div> *@
+
+        <!-- Highlights -->
+        <div class="mb-16">
+            <h2 class="text-brand-700 text-center mb-8" style="font-size:1.8rem;font-weight:700;">Why Choose Us</h2>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="bg-white rounded-xl p-6 border border-line hover:border-accent/30 hover:shadow-md transition-all group">
+                    <div class="w-11 h-11 bg-brand-700 group-hover:bg-accent rounded-lg flex items-center justify-center mb-4 transition-colors text-white"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[1.15em] h-[1.15em]" aria-hidden="true"><path d="M8 21h8M12 17v4M17 4H7v5a5 5 0 0010 0V4z"/><path d="M17 5h3a3 3 0 01-3 3M7 5H4a3 3 0 003 3"/></svg></div>
+                    <h3 class="text-brand-700 mb-2 font-bold">PG Bison Certified</h3>
+                    <p class="text-muted text-sm leading-relaxed">Authorised partner of SA's leading board manufacturer &mdash; every piece uses genuine PG Bison materials.</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 border border-line hover:border-accent/30 hover:shadow-md transition-all group">
+                    <div class="w-11 h-11 bg-brand-700 group-hover:bg-accent rounded-lg flex items-center justify-center mb-4 transition-colors text-white"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[1.15em] h-[1.15em]" aria-hidden="true"><path d="M14.7 6.3a4 4 0 005.3 5.2l-8 8a2.8 2.8 0 01-4-4l8-8z"/><path d="M14.7 6.3L17.5 3.5"/></svg></div>
+                    <h3 class="text-brand-700 mb-2 font-bold">CNC Precision</h3>
+                    <p class="text-muted text-sm leading-relaxed">Tolerances of &plusmn;0.5mm. What you design is exactly what gets built.</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 border border-line hover:border-accent/30 hover:shadow-md transition-all group">
+                    <div class="w-11 h-11 bg-brand-700 group-hover:bg-accent rounded-lg flex items-center justify-center mb-4 transition-colors text-white"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[1.15em] h-[1.15em]" aria-hidden="true"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/></svg></div>
+                    <h3 class="text-brand-700 mb-2 font-bold">All Client Types</h3>
+                    <p class="text-muted text-sm leading-relaxed">Homeowners, interior designers, and building contractors &mdash; we serve every scale of project.</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 border border-line hover:border-accent/30 hover:shadow-md transition-all group">
+                    <div class="w-11 h-11 bg-brand-700 group-hover:bg-accent rounded-lg flex items-center justify-center mb-4 transition-colors text-white"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[1.15em] h-[1.15em]" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+                    <h3 class="text-brand-700 mb-2 font-bold">3 Gauteng Branches</h3>
+                    <p class="text-muted text-sm leading-relaxed">Soweto, Roodepoort, and Randfontein &mdash; always close to your project site.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Branches -->
+        <div class="mb-16">
+            <h2 class="text-brand-700 text-center mb-8" style="font-size:1.8rem;font-weight:700;">Our Three Branches</h2>
+            <div class="grid sm:grid-cols-3 gap-6">
+                <div class="bg-brand-700 rounded-xl overflow-hidden group">
+                    <div class="h-44 overflow-hidden"><img src="https://images.unsplash.com/photo-1659930087003-2d64e33181f7?w=300&h=300&fit=crop&auto=format" alt="Example interiors photo; not a photograph of the Soweto branch" class="w-full h-full object-cover opacity-60 group-hover:opacity-75 group-hover:scale-105 transition-all duration-500" /></div>
+                    <div class="p-5">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-7 h-7 bg-accent rounded flex items-center justify-center text-white text-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[1.15em] h-[1.15em]" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+                            <h3 class="text-white font-bold">Soweto Branch</h3>
+                        </div>
+                        <p class="text-white/75 text-sm">Serving customers in the Soweto area.</p>
+                    </div>
+                </div>
+                <div class="bg-brand-700 rounded-xl overflow-hidden group">
+                    <div class="h-44 overflow-hidden"><img src="https://images.unsplash.com/photo-1611021061285-16c871740efa?w=300&h=300&fit=crop&auto=format" alt="Example interiors photo; not a photograph of the Roodepoort branch" class="w-full h-full object-cover opacity-60 group-hover:opacity-75 group-hover:scale-105 transition-all duration-500" /></div>
+                    <div class="p-5">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-7 h-7 bg-accent rounded flex items-center justify-center text-white text-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[1.15em] h-[1.15em]" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+                            <h3 class="text-white font-bold">Roodepoort Branch</h3>
+                        </div>
+                        <p class="text-white/75 text-sm">Serving customers in the Roodepoort area.</p>
+                    </div>
+                </div>
+                <div class="bg-brand-700 rounded-xl overflow-hidden group">
+                    <div class="h-44 overflow-hidden"><img src="https://images.unsplash.com/photo-1497219055242-93359eeed651?w=300&h=300&fit=crop&auto=format" alt="Example interiors photo; not a photograph of the Randfontein branch" class="w-full h-full object-cover opacity-60 group-hover:opacity-75 group-hover:scale-105 transition-all duration-500" /></div>
+                    <div class="p-5">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-7 h-7 bg-accent rounded flex items-center justify-center text-white text-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-[1.15em] h-[1.15em]" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+                            <h3 class="text-white font-bold">Randfontein Branch</h3>
+                        </div>
+                        <p class="text-white/75 text-sm">Serving customers in the Randfontein area.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="bg-accent rounded-xl p-8 text-center text-white">
+            <h2 class="mb-2" style="font-size:1.6rem;font-weight:700;">Ready to Work With Us?</h2>
+            <p class="text-white/75 text-sm mb-6">Get a free quote &mdash; we'll measure, design, and install everything.</p>
+            <a asp-controller="Contact" asp-action="Index" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-accent font-bold rounded hover:bg-gray-100 transition-colors">Get a Free Quote &rarr;</a>
+        </div>
+    </div>
+</div>

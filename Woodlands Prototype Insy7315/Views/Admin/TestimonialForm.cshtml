@@ -1,0 +1,71 @@
+@model Woodlands_Prototype_Insy7315.Models.TestimonialFormViewModel
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Testimonial" : "New Testimonial";
+    ViewData["Subtitle"] = isEdit ? "Update this customer review." : "Add a new customer review.";
+}
+
+<div class="max-w-3xl mx-auto">
+
+    <form asp-action="@(isEdit ? "EditTestimonial" : "CreateTestimonial")"
+          asp-route-id="@Model.Id"
+          method="post"
+          class="bg-white rounded-xl border border-line shadow-sm p-6 lg:p-8 space-y-6">
+
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="All" class="text-sm text-danger bg-danger/5 border border-danger/20 rounded-lg px-4 py-3"></div>
+
+        <div class="grid md:grid-cols-2 gap-5">
+            <div>
+                <label asp-for="Name" class="block text-sm font-semibold text-ink mb-1">Customer Name <span class="text-danger">*</span></label>
+                <input asp-for="Name" class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" placeholder="e.g. Thabo Mokoena" />
+                <span asp-validation-for="Name" class="text-xs text-danger"></span>
+            </div>
+            <div>
+                <label asp-for="Role" class="block text-sm font-semibold text-ink mb-1">Role</label>
+                <input asp-for="Role" class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" placeholder="e.g. Homeowner, Interior Designer" />
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-5">
+            <div>
+                <label asp-for="Location" class="block text-sm font-semibold text-ink mb-1">Location</label>
+                <input asp-for="Location" class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" placeholder="e.g. Soweto" />
+            </div>
+            <div>
+                <label asp-for="Rating" class="block text-sm font-semibold text-ink mb-1">Rating (1-5) <span class="text-danger">*</span></label>
+                <select asp-for="Rating" class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700">
+                    <option value="5">5 ★ - Excellent</option>
+                    <option value="4">4 ★ - Great</option>
+                    <option value="3">3 ★ - Good</option>
+                    <option value="2">2 ★ - Fair</option>
+                    <option value="1">1 ★ - Poor</option>
+                </select>
+                <span asp-validation-for="Rating" class="text-xs text-danger"></span>
+            </div>
+        </div>
+
+        <div>
+            <label asp-for="Project" class="block text-sm font-semibold text-ink mb-1">Project</label>
+            <input asp-for="Project" class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" placeholder="e.g. Full Kitchen Renovation" />
+            <p class="text-xs text-muted mt-1">The project this testimonial relates to. Shown under the customer name.</p>
+        </div>
+
+        <div>
+            <label asp-for="Review" class="block text-sm font-semibold text-ink mb-1">Review <span class="text-danger">*</span></label>
+            <textarea asp-for="Review" rows="6" class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" placeholder="The customer's full review text."></textarea>
+            <span asp-validation-for="Review" class="text-xs text-danger"></span>
+        </div>
+
+        <div class="flex gap-3 pt-4 border-t border-line">
+            <button type="submit" class="px-5 py-2.5 rounded-lg bg-brand-700 text-white font-semibold hover:bg-brand-800">
+                @(isEdit ? "Save changes" : "Create testimonial")
+            </button>
+            <a asp-action="Testimonials" class="px-5 py-2.5 rounded-lg border border-line font-semibold text-ink hover:bg-surface">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>

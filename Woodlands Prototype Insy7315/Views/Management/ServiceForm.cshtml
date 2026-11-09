@@ -1,0 +1,63 @@
+@model Woodlands_Prototype_Insy7315.Models.Service
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Service" : "New Service";
+    ViewData["Subtitle"] = isEdit ? "Update this service." : "Add a new service.";
+}
+
+<div class="max-w-3xl mx-auto">
+
+    <form asp-action="@(isEdit ? "EditService" : "CreateService")"
+          asp-route-id="@Model.Id"
+          method="post"
+          class="bg-white rounded-xl border border-line shadow-sm p-6 lg:p-8 space-y-6">
+
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="All" class="text-sm text-danger bg-danger/5 border border-danger/20 rounded-lg px-4 py-3"></div>
+
+        <div>
+            <label asp-for="Name" class="block text-sm font-semibold text-ink mb-1">
+                Service Name <span class="text-danger">*</span>
+            </label>
+            <input asp-for="Name"
+                   class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700"
+                   placeholder="e.g. Kitchen Units" />
+            <p class="text-xs text-muted mt-1">Shown on the public services page.</p>
+            <span asp-validation-for="Name" class="text-xs text-danger"></span>
+        </div>
+
+        <div>
+            <label asp-for="Description" class="block text-sm font-semibold text-ink mb-1">Description</label>
+            <textarea asp-for="Description" rows="4"
+                      class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700"
+                      placeholder="A short summary of what this service includes."></textarea>
+            <span asp-validation-for="Description" class="text-xs text-danger"></span>
+        </div>
+
+        <div>
+            <label asp-for="Image" class="block text-sm font-semibold text-ink mb-1">Image URL (optional)</label>
+            <input asp-for="Image"
+                   class="w-full rounded-lg border border-line px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700"
+                   placeholder="/images/services/kitchen.jpg or https://..." />
+            <p class="text-xs text-muted mt-1">Paste a URL or leave blank to use the default icon.</p>
+        </div>
+
+        <label class="flex items-center gap-2 text-sm text-ink">
+            <input asp-for="IsActive" type="checkbox" class="rounded border-line" />
+            Active (visible on the public site)
+        </label>
+
+        <div class="flex gap-3 pt-4 border-t border-line">
+            <button type="submit"
+                    class="px-5 py-2.5 rounded-lg bg-brand-700 text-white font-semibold hover:bg-brand-800">
+                @(isEdit ? "Save changes" : "Create service")
+            </button>
+            <a asp-action="Services"
+               class="px-5 py-2.5 rounded-lg border border-line font-semibold text-ink hover:bg-surface">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>

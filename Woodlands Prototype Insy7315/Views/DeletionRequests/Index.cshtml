@@ -1,0 +1,103 @@
+@model List<Woodlands_Prototype_Insy7315.Models.DeletionRequest>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Deletion Requests";
+    ViewData["Subtitle"] = "Approve or reject account deletion requests.";
+
+    var filter = ViewData["Filter"]?.ToString() ?? "pending";
+
+    string Badge(string status) => status switch
+    {
+        "Approved" => "bg-success/10 text-success",
+        "Rejected" => "bg-danger/10 text-danger",
+        "Cancelled" => "bg-surface text-muted",
+        _ => "bg-accent/10 text-accent"
+    };
+}
+
+<div class="flex gap-2 mb-5">
+    <a asp-action="Index" asp-route-filter="pending"
+       class="px-4 py-2 rounded-lg text-sm font-semibold @(filter == "pending" ? "bg-brand-700 text-white" : "border border-line bg-white text-ink hover:bg-surface")">
+        Pending
+    </a>
+    <a asp-action="Index" asp-route-filter="all"
+       class="px-4 py-2 rounded-lg text-sm font-semibold @(filter == "all" ? "bg-brand-700 text-white" : "border border-line bg-white text-ink hover:bg-surface")">
+        All requests
+    </a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="bg-white rounded-xl border border-line shadow-sm p-10 text-center text-sm text-muted">
+        @(filter == "pending" ? "No pending deletion requests." : "No deletion requests yet.")
+    </div>
+}
+else
+{
+    <div class="bg-white rounded-xl border border-line shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-surface border-b border-line">
+                    <tr>
+                        <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Account</th>
+                        <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Requested</th>
+                        <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Recovery copy</th>
+                        <th class="text-left px-5 py-3 text-xs uppercase tracking-wider text-muted">Status</th>
+                        <th class="text-right px-5 py-3 text-xs uppercase tracking-wider text-muted">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-line">
+                    @foreach (var r in Model)
+                    {
+                        <tr class="align-top">
+                            <td class="px-5 py-4">
+                                <div class="font-semibold text-ink">@(string.IsNullOrWhiteSpace(r.FullName) ? "Unnamed" : r.FullName)</div>
+                                <div class="text-xs text-muted break-all">@r.Email</div>
+                                <div class="text-xs text-muted">@r.Role</div>
+                            </td>
+                            <td class="px-5 py-4 text-ink whitespace-nowrap">@r.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td class="px-5 py-4 text-ink">@(r.KeepData ? "Yes" : "No")</td>
+                            <td class="px-5 py-4">
+                                <span class="px-2 py-1 rounded-full text-xs font-semibold @Badge(r.Status)">@r.Status</span>
+                                @if (r.ResolvedAt.HasValue)
+                                {
+                                    <div class="text-xs text-muted mt-1">
+                                        @r.ResolvedAt.Value.ToString("dd MMM yyyy")@(string.IsNullOrWhiteSpace(r.ResolvedBy) ? "" : " by " + r.ResolvedBy)
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(r.AdminNote))
+                                {
+                                    <div class="text-xs text-muted mt-1">Note: @r.AdminNote</div>
+                                }
+                            </td>
+                            <td class="px-5 py-4">
+                                @if (r.Status == "Pending")
+                                {
+                                    <div class="flex flex-col items-end gap-2">
+                                        <form asp-action="Approve" asp-route-id="@r.Id" method="post"
+                                              data-confirm="@(r.FullName ?? r.Email)'s account and quote records will be permanently deleted@(r.KeepData ? ", and a recoverable copy will be saved." : ".")"
+                                              data-confirm-title="Approve deletion"
+                                              data-confirm-ok="Approve and delete">
+                                            <button type="submit" class="px-4 py-2 rounded-lg bg-danger text-white text-xs font-semibold hover:opacity-90">
+                                                Approve and delete
+                                            </button>
+                                        </form>
+
+                                        <form asp-action="Reject" asp-route-id="@r.Id" method="post" class="flex items-center gap-2">
+                                            <input name="note" maxlength="500" placeholder="Reason (optional)"
+                                                   class="w-40 rounded-lg border border-line px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" />
+                                            <button type="submit" class="px-4 py-2 rounded-lg border border-line text-ink text-xs font-semibold hover:bg-surface">
+                                                Reject
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

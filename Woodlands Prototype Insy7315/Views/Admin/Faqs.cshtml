@@ -1,0 +1,153 @@
+@model IEnumerable<Woodlands_Prototype_Insy7315.Models.FaqItem>
+@{
+    ViewData["Title"] = "FAQs";
+    ViewData["Subtitle"] = "Frequently asked questions shown on the public site.";
+    ViewData["HeaderAction"] = @"<a href=""/Admin/CreateFaq"" class=""inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-700 text-white text-sm font-semibold hover:bg-brand-800"">
+        <svg width=""16"" height=""16"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2.5"" stroke-linecap=""round""><path d=""M12 5v14M5 12h14""/></svg>
+        New FAQ
+    </a>";
+
+    var allFaqs = Model.ToList();
+    var currentCategory = ViewData["Category"] as string ?? "all";
+
+    var categories = allFaqs
+        .Select(f => f.Category)
+        .Where(c => !string.IsNullOrWhiteSpace(c))
+        .Distinct()
+        .OrderBy(c => c)
+        .ToList();
+
+    var faqs = currentCategory == "all"
+        ? allFaqs
+        : allFaqs.Where(f => f.Category == currentCategory).ToList();
+}
+
+<div class="bg-white rounded-xl border border-line shadow-sm">
+
+    <!-- Toolbar -->
+    <div class="p-4 border-b border-line flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+
+        <div class="relative flex-1 max-w-md">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            <input type="text" id="faq-search" placeholder="Search by question..."
+                   class="w-full rounded-lg border border-line pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-700/20 focus:border-brand-700" />
+        </div>
+
+        <div class="flex flex-wrap items-center gap-1.5">
+            <a asp-action="Faqs"
+               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors @(currentCategory == "all" ? "bg-brand-700 text-white border-brand-700" : "bg-white text-ink/70 border-line hover:border-brand-700/40")">
+                All (@allFaqs.Count)
+            </a>
+            @foreach (var cat in categories)
+            {
+                var count = allFaqs.Count(f => f.Category == cat);
+                var isActive = cat == currentCategory;
+                <a asp-action="Faqs" asp-route-category="@cat"
+                   class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors @(isActive ? "bg-brand-700 text-white border-brand-700" : "bg-white text-ink/70 border-line hover:border-brand-700/40")">
+                    @cat (@count)
+                </a>
+            }
+        </div>
+    </div>
+
+    @if (!faqs.Any())
+    {
+        <div class="py-16 text-center">
+            <svg class="w-12 h-12 mx-auto text-muted/50 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+            <h3 class="text-base font-semibold text-ink">No FAQs here</h3>
+            <p class="text-sm text-muted mt-1">Add your first FAQ to get started.</p>
+            <a href="/Admin/CreateFaq"
+               class="inline-flex items-center gap-2 mt-5 px-4 py-2 rounded-lg bg-brand-700 text-white text-sm font-semibold hover:bg-brand-800">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                Add FAQ
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-surface text-muted text-xs uppercase tracking-wide">
+                    <tr>
+                        <th class="text-left font-medium px-4 py-3 w-32">Category</th>
+                        <th class="text-left font-medium px-4 py-3">Question</th>
+                        <th class="text-right font-medium px-4 py-3 w-32">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-line">
+                    @foreach (var f in faqs)
+                    {
+                        <tr class="hover:bg-surface/60 transition-colors faq-row"
+                            data-search="@f.Question.ToLower()">
+                            <td class="px-4 py-3">
+                                <span class="inline-block px-2 py-0.5 rounded-full text-[0.7rem] font-semibold bg-brand-700/10 text-brand-700">@f.Category</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="font-medium text-ink leading-tight">@f.Question</div>
+                                <div class="text-xs text-muted truncate max-w-md mt-0.5">@f.Answer</div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a asp-action="EditFaq" asp-route-id="@f.Id"
+                                       class="p-2 rounded-lg text-muted hover:bg-surface hover:text-brand-700" title="Edit">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                    </a>
+                                    <form asp-action="DeleteFaq" asp-route-id="@f.Id" method="post" class="inline"
+                                          data-confirm="Delete this FAQ? This action cannot be undone."
+                                          data-confirm-title="Delete FAQ"
+                                          data-confirm-ok="Delete">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit"
+                                                class="p-2 rounded-lg text-muted hover:bg-danger/10 hover:text-danger" title="Delete">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile -->
+        <div class="md:hidden divide-y divide-line">
+            @foreach (var f in faqs)
+            {
+                <div class="p-4">
+                    <span class="inline-block px-2 py-0.5 rounded-full text-[0.7rem] font-semibold bg-brand-700/10 text-brand-700">@f.Category</span>
+                    <div class="font-medium text-ink mt-2">@f.Question</div>
+                    <p class="text-xs text-muted mt-1 line-clamp-3">@f.Answer</p>
+                    <div class="flex gap-1 mt-3">
+                        <a asp-action="EditFaq" asp-route-id="@f.Id"
+                           class="px-3 py-1 rounded-md text-xs font-medium border border-line hover:bg-surface">Edit</a>
+                        <form asp-action="DeleteFaq" asp-route-id="@f.Id" method="post"
+                              data-confirm="Delete this FAQ?"
+                              data-confirm-title="Delete FAQ">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="px-3 py-1 rounded-md text-xs font-medium border border-danger/30 text-danger hover:bg-danger/5">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var input = document.getElementById('faq-search');
+            if (!input) return;
+            var rows = document.querySelectorAll('.faq-row');
+
+            input.addEventListener('input', function () {
+                var q = this.value.trim().toLowerCase();
+                rows.forEach(function (row) {
+                    var haystack = row.dataset.search || '';
+                    row.style.display = !q || haystack.indexOf(q) !== -1 ? '' : 'none';
+                });
+            });
+        })();
+    </script>
+}
